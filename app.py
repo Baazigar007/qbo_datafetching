@@ -240,7 +240,7 @@ def update_database_periodically():
     connection.close()
 
 # Schedule the update function to run every 2 hours
-schedule.every(10).seconds.do(update_database_periodically)
+schedule.every(30).minutes.do(update_database_periodically)
 print("done updating")
 
 while True:
