@@ -10,7 +10,7 @@ import schedule
 import time
 from datetime import datetime, date
 import pandas as pd
-import re
+import os
 
 auth_client = AuthClient(
         client_id='ABAIju7db2lIL1HqnR0wTRVKrKyrJkS8ZSrLHBnA52RAKvqY07',
@@ -115,7 +115,6 @@ def get_uuid():
 
 
 
-
 for invoice in invoices:
     invoice_dict = invoice.to_dict()
     newmap = {}
@@ -133,11 +132,11 @@ for invoice in invoices:
     
     invoices_dict.append(newmap) 
 
-print(invoices_dict)
-# print(invoices)
+print("invoices_dict")
 
 
-csv_columns = ["uuid", "invoiceId", "date", "school", "sorority", "product", "amount", "productQty", "unitPrice",]
+
+csv_columns = ["uuid", "invoiceId", "date", "school", "sorority", "product", "amount", "productQty", "unitPrice"]
 
 
 def read_existing_data(file_path):
@@ -159,7 +158,7 @@ def write_data_to_csv(data, file_path, csv_columns):
 
 
 
-csv_columns = ["uuid", "invoiceId", "date", "school", "sorority", "product", "amount", "productQty", "unitPrice",]
+csv_columns = ["uuid", "invoiceId", "date", "school", "sorority", "product", "amount", "productQty", "unitPrice"]
 
 def process_invoices():
     existing_data = read_existing_data("outputdataNEW.csv")
@@ -196,7 +195,6 @@ process_invoices()
 
 
 
-
 def import_csv_to_dbeaver_database_using_mysql(csv_file_path, database_connection):
     cursor = database_connection.cursor()
 
@@ -205,58 +203,47 @@ def import_csv_to_dbeaver_database_using_mysql(csv_file_path, database_connectio
         next(reader, None)
 
         for row in reader:
+            if row[2] == datetime.datetime.today().date():
                 cursor.execute(
-                    "INSERT INTO qbo_new (uuid, invoiceId, date, school, sorority, product, amount, productQty, unitPrice) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                    (row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8])
+                    "UPDATE qbo_new SET uuid = %s, invoiceId = %s, school = %s, sorority = %s, product = %s, amount = %s, productQty = %s, unitPrice = %s WHERE date = %s",
+                    (row[0], row[1], row[3], row[4], row[5], row[6], row[7], row[8], row[2])
                 )
-                
 
     database_connection.commit()
-    cursor.close()  
-    print("Data imported into the database")
+    cursor.close()
+    print("Data updated in the database")
 
-
-def process_invoices():
-  """Processes the invoices and returns a list of rows to be inserted into the database."""
-
-  # TODO: Implement this function
-
-  return []
-
-def get_last_date_updated():
-
-  # TODO: Implement this function
-
-  return date.today()
 
 def update_database_periodically():
-  if is_last_date():
-    # Process invoices and import data to the database
-    process_invoices()
-    import_csv_to_dbeaver_database_using_mysql(csv_file_path, connection)
-
-def is_last_date():
-  """Checks if the current date is the same as the last date the data was updated.
-
-  Returns:
-    True if the current date is the same as the last date the data was updated,
-    False otherwise.
-  """
-
-  last_date = get_last_date_updated()
-  current_date = datetime.date.today()
-
-  return last_date == current_date
-
-# Specify the CSV file path
-csv_file_path = "outputdataNEW.csv"
-
-# Connect to the MySQL database
-connection = mysql.connector.connect(
+    # Connect to the MySQL database
+    connection = mysql.connector.connect(
         host="us-cdbr-east-06.cleardb.net",
         user="b529606bdcbbbf",
         password="e577a1cc",
         database="heroku_cd6163c1f2350a7"
     )
 
-schedule.every().day.at("00:00").do(update_database_periodically)
+    # Specify the CSV file path
+    csv_file_path = "outputdataNEW.csv"
+    process_invoices()
+        
+    # Get the previous date
+    previous_date = (datetime.datetime.today() - datetime.timedelta(days=1)).date()
+
+    # Check if the CSV file exists for the previous date
+    if os.path.exists(csv_file_path):
+        # Import data from the CSV file to the database for the previous date
+        import_csv_to_dbeaver_database_using_mysql(csv_file_path, connection, previous_date)
+
+    # Close the database connection
+    connection.close()
+
+# Schedule the update function to run every night at 1 am
+schedule.every().day.at("01:00").do(update_database_periodically)
+print("done updating")
+
+while True:
+    schedule.run_pending()
+    time.sleep(1)
+
+
