@@ -1,4 +1,3 @@
-
 from quickbooks import QuickBooks
 from intuitlib.client import AuthClient
 from intuitlib.enums import Scopes
@@ -9,7 +8,9 @@ import csv
 import mysql.connector
 import schedule
 import time
+from datetime import datetime, date
 import pandas as pd
+import re
 
 auth_client = AuthClient(
         client_id='ABAIju7db2lIL1HqnR0wTRVKrKyrJkS8ZSrLHBnA52RAKvqY07',
@@ -25,13 +26,13 @@ from quickbooks import QuickBooks
 
 client = QuickBooks(
         auth_client=auth_client,
-        refresh_token='AB11707289593D3c1Fi2URTICT68rRAPo1A72KFa1rryvYbBHQ',
+        refresh_token='AB117074842018xy78SKnxKYSB0MKLyTfU4zUkC9VbZFQUsCYE',
         company_id='9130356041310986',
     )
 
 client = QuickBooks(
     auth_client=auth_client,
-    refresh_token='AB11707289593D3c1Fi2URTICT68rRAPo1A72KFa1rryvYbBHQ',
+    refresh_token='AB117074842018xy78SKnxKYSB0MKLyTfU4zUkC9VbZFQUsCYE',
     company_id='9130356041310986',
     minorversion=69
 )
@@ -88,8 +89,6 @@ def getQty(Line):
                 return qty  # Return the quantity
     return None  # Return None if no quantity is found
 
-
-
 # Getting Amount
 
 def getAmount(Line):
@@ -116,6 +115,7 @@ def get_uuid():
 
 
 
+
 for invoice in invoices:
     invoice_dict = invoice.to_dict()
     newmap = {}
@@ -137,7 +137,7 @@ print(invoices_dict)
 # print(invoices)
 
 
-csv_columns = ["uuid", "invoiceId", "date", "school", "sorority", "product", "amount", "productQty", "unitPrice"]
+csv_columns = ["uuid", "invoiceId", "date", "school", "sorority", "product", "amount", "productQty", "unitPrice",]
 
 
 def read_existing_data(file_path):
@@ -157,42 +157,9 @@ def write_data_to_csv(data, file_path, csv_columns):
         writer.writeheader()
         writer.writerows(data)
 
-csv_columns = ["uuid", "invoiceId", "date", "school", "sorority", "product", "amount", "productQty", "unitPrice"]
 
-# Load existing data
-existing_data = read_existing_data("outputdataNEW.csv")
 
-# Create a set of unique identifiers (e.g., invoiceId) for the existing data
-existing_ids = set(entry["invoiceId"] for entry in existing_data)
-
-# Iterate through invoices and append new data only if it doesn't already exist
-# for invoice in invoices:
-#     invoice_dict = invoice.to_dict()
-#     invoice_id = invoice_dict["DocNumber"]
-    
-#     if invoice_id not in existing_ids:
-#         school = getSchool(invoice_dict["CustomField"])
-#         sorority = invoice_dict["CustomerRef"]["name"]
-#         invoice_date = invoice_dict["TxnDate"]
-
-#         # Iterate through product lines in the invoice
-#         for product_line in invoice_dict["Line"]:
-#             if "SalesItemLineDetail" in product_line:
-#                 newmap = {}
-#                 newmap["uuid"] = get_uuid()
-#                 newmap["invoiceId"] = invoice_id
-#                 newmap["date"] = invoice_date
-#                 newmap["school"] = school
-#                 newmap["sorority"] = sorority
-#                 newmap["product"] = getProductName([product_line])
-#                 newmap["amount"] = getAmount([product_line])
-#                 newmap["productQty"] = getQty([product_line])
-#                 newmap["unitPrice"] = getUnitPrice([product_line])
-#                 existing_data.append(newmap)
-
-# # Write the updated data back to the CSV file
-# write_data_to_csv(existing_data, "outputdataNEW.csv", csv_columns)
-
+csv_columns = ["uuid", "invoiceId", "date", "school", "sorority", "product", "amount", "productQty", "unitPrice",]
 
 def process_invoices():
     existing_data = read_existing_data("outputdataNEW.csv")
@@ -230,37 +197,6 @@ process_invoices()
 
 
 
-
-
-# # Create a set to store the processed UUIDs
-# processed_uuids = set()
-
-# def import_csv_to_dbeaver_database_using_mysql(csv_file_path, database_connection):
-#     cursor = database_connection.cursor()
-
-#     with open(csv_file_path, "r") as csvfile:
-#         reader = csv.reader(csvfile)
-#         next(reader, None)
-
-#         for row in reader:
-#             uuid = row[0]  # Assuming that the UUID is in the first column
-#             if uuid not in processed_uuids:
-#                 cursor.execute(
-#                     "INSERT INTO qbo_new (uuid, invoiceId, date, school, sorority, product, amount, productQty, unitPrice) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
-#                     (row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8])
-#                 )
-#                 processed_uuids.add(uuid)
-
-#     database_connection.commit()
-#     cursor.close()
-#     print("Data imported into the database")
-
-
-
-# Create a set to store the processed data
-processed_records = set()
-
-
 def import_csv_to_dbeaver_database_using_mysql(csv_file_path, database_connection):
     cursor = database_connection.cursor()
 
@@ -269,57 +205,58 @@ def import_csv_to_dbeaver_database_using_mysql(csv_file_path, database_connectio
         next(reader, None)
 
         for row in reader:
-            invoice_id = row[1]  # Assuming invoiceId is in the second column
-            date = row[2]
-            school = row[3]
-            sorority = row[4]
-            product = row[5]
-            amount = row[6]
-            product_qty = row[7]
-            unit_price = row[8]
-
-            # Check if a record with the same identifiers already exists
-            if (invoice_id, date, school, sorority, product, amount, product_qty, unit_price) not in processed_records:
-                # If not, insert the record
                 cursor.execute(
                     "INSERT INTO qbo_new (uuid, invoiceId, date, school, sorority, product, amount, productQty, unitPrice) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                    (row[0], invoice_id, date, school, sorority, product, amount, product_qty, unit_price)
+                    (row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8])
                 )
-                processed_records.add((invoice_id, date, school, sorority, product, amount, product_qty, unit_price))
-            
+                
+
     database_connection.commit()
-    cursor.close()
+    cursor.close()  
     print("Data imported into the database")
 
 
+def process_invoices():
+  """Processes the invoices and returns a list of rows to be inserted into the database."""
+
+  # TODO: Implement this function
+
+  return []
+
+def get_last_date_updated():
+
+  # TODO: Implement this function
+
+  return date.today()
+
 def update_database_periodically():
-    # Connect to the MySQL database
-    connection = mysql.connector.connect(
+  if is_last_date():
+    # Process invoices and import data to the database
+    process_invoices()
+    import_csv_to_dbeaver_database_using_mysql(csv_file_path, connection)
+
+def is_last_date():
+  """Checks if the current date is the same as the last date the data was updated.
+
+  Returns:
+    True if the current date is the same as the last date the data was updated,
+    False otherwise.
+  """
+
+  last_date = get_last_date_updated()
+  current_date = datetime.date.today()
+
+  return last_date == current_date
+
+# Specify the CSV file path
+csv_file_path = "outputdataNEW.csv"
+
+# Connect to the MySQL database
+connection = mysql.connector.connect(
         host="us-cdbr-east-06.cleardb.net",
         user="b529606bdcbbbf",
         password="e577a1cc",
         database="heroku_cd6163c1f2350a7"
     )
-    
-    # Specify the CSV file path
-    csv_file_path = "outputdataNEW.csv"
-    
-    process_invoices()
 
-    # Import data from the CSV file to the database
-    import_csv_to_dbeaver_database_using_mysql(csv_file_path, connection)
-
-    # Close the database connection
-    connection.close()
-
-# Schedule the update function to run every 2 hours
-schedule.every(30).minutes.do(update_database_periodically)
-print("done updating")
-
-while True:
-    schedule.run_pending()
-    time.sleep(1)
-
-
-
-
+schedule.every().day.at("00:00").do(update_database_periodically)
