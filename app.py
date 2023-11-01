@@ -26,13 +26,13 @@ from quickbooks import QuickBooks
 
 client = QuickBooks(
         auth_client=auth_client,
-        refresh_token='AB117074842018xy78SKnxKYSB0MKLyTfU4zUkC9VbZFQUsCYE',
+        refresh_token='AB11707589104G95cyu0IKqmdLvxsSvCpz0pnH4qGCDwMKzO8R',
         company_id='9130356041310986',
     )
 
 client = QuickBooks(
     auth_client=auth_client,
-    refresh_token='AB117074842018xy78SKnxKYSB0MKLyTfU4zUkC9VbZFQUsCYE',
+    refresh_token='AB11707589104G95cyu0IKqmdLvxsSvCpz0pnH4qGCDwMKzO8R',
     company_id='9130356041310986',
     minorversion=69
 )
