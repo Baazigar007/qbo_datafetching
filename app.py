@@ -19,20 +19,19 @@ auth_client = AuthClient(
         environment='production',
         redirect_uri='https://developer.intuit.com/v2/OAuth2Playground/RedirectUrl',
     )
-print(auth_client.refresh_token)
 
 
-from quickbooks import QuickBooks
+
 
 client = QuickBooks(
         auth_client=auth_client,
-        refresh_token='AB11707589104G95cyu0IKqmdLvxsSvCpz0pnH4qGCDwMKzO8R',
+        refresh_token='AB11707677996FvuTy1xjjTbxWgpCm3hcNwVpw63LI61hcHhj8',
         company_id='9130356041310986',
     )
 
 client = QuickBooks(
     auth_client=auth_client,
-    refresh_token='AB11707589104G95cyu0IKqmdLvxsSvCpz0pnH4qGCDwMKzO8R',
+    refresh_token='AB11707677996FvuTy1xjjTbxWgpCm3hcNwVpw63LI61hcHhj8',
     company_id='9130356041310986',
     minorversion=69
 )
@@ -41,12 +40,8 @@ client = QuickBooks(
 # Sending the GET request
 
 invoices = Invoice.all(qb=client,start_position="1", max_results=1000,)
-
+# print(invoices)
 invoices_dict = []
-
-
-
-
 
 
 # Getting School 
@@ -79,6 +74,17 @@ def getUnitPrice(Line):
                 return unit_price  # Return the unit price
     return None  # Return None if no unit price is found
 
+
+
+# UUID
+def get_uuid():
+  my_uuid = uuid.uuid4()
+
+  my_uuid_string = str(my_uuid)
+
+  return my_uuid_string
+
+
 # Getting Qty
 def getQty(Line):
     for item in Line:
@@ -102,65 +108,79 @@ def getAmount(Line):
 
 
   for price in amount:
+#    print (price,amount)
    return price
+  
+# Getting Description
 
+def get_descriptions(Line):
+    descriptions = []  # Initialize a list to store descriptions for each line
+    for item in Line:
+        # print(item,"item")
+        # print(isinstance(item, dict),"Description" in item,item["Description"])
+        if isinstance(item, dict) and "Description" in item and item["Description"] is not None:
+            # print("description",descriptions)
+            description = item["Description"]
+            # print(description)
+            descriptions.append(description)
+            # print(descriptions)
+    #return descriptions  
+  # Return the list of descriptions outside of the for loop
+    for d in descriptions:
+        # print (d,descriptions)
+        return d
+  
 
-# UUID
-def get_uuid():
-  my_uuid = uuid.uuid4()
-
-  my_uuid_string = str(my_uuid)
-
-  return my_uuid_string
-
-
-
-for invoice in invoices:
-    invoice_dict = invoice.to_dict()
-    newmap = {}
-    newmap["uuid"]=get_uuid()
-    newmap["invoiceId"]=invoice_dict["DocNumber"]
-    newmap["date"]=invoice_dict["TxnDate"]
-    newmap["school"]=getSchool(invoice_dict["CustomField"])
-    newmap["sorority"] = invoice_dict["CustomerRef"]["name"]
-    newmap['product']=getProductName(invoice_dict["Line"])
-    newmap["amount"]=getAmount(invoice_dict["Line"])
-    newmap["productQty"]=getQty(invoice_dict["Line"])
-    newmap["unitPrice"]=getUnitPrice(invoice_dict["Line"])
-
-    
-    
-    invoices_dict.append(newmap) 
-
-print("invoices_dict")
-
-
-
-csv_columns = ["uuid", "invoiceId", "date", "school", "sorority", "product", "amount", "productQty", "unitPrice"]
-
-
-def read_existing_data(file_path):
-    existing_data = []
-    try:
-        with open(file_path, 'r', newline='', encoding="utf-8") as input_file:
-            reader = csv.DictReader(input_file)
-            for row in reader:
-                existing_data.append(row)
-    except FileNotFoundError:
-        pass  # If the file doesn't exist, there's no existing data
-    return existing_data
-
-def write_data_to_csv(data, file_path, csv_columns):
-    with open(file_path, 'w', newline='', encoding="utf-8") as output_file:
-        writer = csv.DictWriter(output_file, fieldnames=csv_columns)
-        writer.writeheader()
-        writer.writerows(data)
-
-
-
-csv_columns = ["uuid", "invoiceId", "date", "school", "sorority", "product", "amount", "productQty", "unitPrice"]
 
 def process_invoices():
+    
+    for invoice in invoices: 
+        invoice_dict = invoice.to_dict()
+        newmap = {}
+        newmap["uuid"]=get_uuid()
+        newmap["invoiceId"]=invoice_dict["DocNumber"]
+        newmap["date"]=invoice_dict["TxnDate"]
+        newmap["school"]=getSchool(invoice_dict["CustomField"])
+        newmap["sorority"] = invoice_dict["CustomerRef"]["name"]
+        newmap['product']=getProductName(invoice_dict["Line"])
+        newmap["amount"]=getAmount(invoice_dict["Line"])
+        newmap["productQty"]=getQty(invoice_dict["Line"])
+        newmap["unitPrice"]=getUnitPrice(invoice_dict["Line"])
+        newmap["descriptions"] = get_descriptions(invoice_dict["Line"])
+        
+        
+        invoices_dict.append(newmap) 
+
+    print("invoices_dict")
+
+
+
+    csv_columns = ["uuid", "invoiceId", "date", "school", "sorority", "product", "amount", "productQty", "unitPrice", "descriptions"]
+
+
+    def read_existing_data(file_path):
+        existing_data = []
+        try:
+            with open(file_path, 'r', newline='', encoding="utf-8") as input_file:
+                reader = csv.DictReader(input_file)
+                for row in reader:
+                    existing_data.append(row)
+        except FileNotFoundError:
+            pass  # If the file doesn't exist, there's no existing data
+        return existing_data
+
+    def write_data_to_csv(data, file_path, csv_columns):
+        with open(file_path, 'w', newline='', encoding="utf-8") as output_file:
+            writer = csv.DictWriter(output_file, fieldnames=csv_columns)
+            writer.writeheader()
+            writer.writerows(data)
+
+
+
+    csv_columns = ["uuid", "invoiceId", "date", "school", "sorority", "product", "amount", "productQty", "unitPrice", "descriptions"]
+
+
+# def process_invoices():
     existing_data = read_existing_data("outputdataNEW.csv")
     existing_ids = set(entry["invoiceId"] for entry in existing_data)
 
@@ -174,6 +194,7 @@ def process_invoices():
             invoice_date = invoice_dict["TxnDate"]
 
             for product_line in invoice_dict["Line"]:
+                # print ("PRODUCT LINE ", product_line,"AND INVOICE DICT",invoice_dict["Line"])
                 if "SalesItemLineDetail" in product_line:
                     newmap = {}
                     newmap["uuid"] = get_uuid()
@@ -185,6 +206,7 @@ def process_invoices():
                     newmap["amount"] = getAmount([product_line])
                     newmap["productQty"] = getQty([product_line])
                     newmap["unitPrice"] = getUnitPrice([product_line])
+                    newmap["descriptions"] = get_descriptions([product_line])
                     existing_data.append(newmap)
 
     write_data_to_csv(existing_data, "outputdataNEW.csv", csv_columns)
@@ -193,25 +215,35 @@ def process_invoices():
 process_invoices()
 
 
-
-
 def import_csv_to_dbeaver_database_using_mysql(csv_file_path, database_connection):
     cursor = database_connection.cursor()
 
+    # Create a set to store processed records
+    processed_records = set()
+
     with open(csv_file_path, "r") as csvfile:
         reader = csv.reader(csvfile)
-        next(reader, None)
+        next(reader, None)  # Skip the header row
 
         for row in reader:
-            if row[2] == datetime.datetime.today().date():
+            invoice_id = row[1]  # Assuming invoiceId is in the second column
+
+            # Create a unique identifier based on the relevant columns
+            record_identifier = (invoice_id, row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9])
+
+            # Check if a record with the same identifier already exists
+            if record_identifier not in processed_records:
+                # If not, insert the record
                 cursor.execute(
-                    "UPDATE qbo_new SET uuid = %s, invoiceId = %s, school = %s, sorority = %s, product = %s, amount = %s, productQty = %s, unitPrice = %s WHERE date = %s",
-                    (row[0], row[1], row[3], row[4], row[5], row[6], row[7], row[8], row[2])
+                    "INSERT INTO qbo_new (uuid, invoiceId, date, school, sorority, product, amount, productQty, unitPrice, descriptions) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                    (row[0], invoice_id, row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9])
                 )
+                processed_records.add(record_identifier)
 
     database_connection.commit()
     cursor.close()
-    print("Data updated in the database")
+    print("Data imported into the database")
+
 
 
 def update_database_periodically():
@@ -222,28 +254,23 @@ def update_database_periodically():
         password="e577a1cc",
         database="heroku_cd6163c1f2350a7"
     )
-
+    
     # Specify the CSV file path
     csv_file_path = "outputdataNEW.csv"
+    
+    # Updating the CSV data
     process_invoices()
-        
-    # Get the previous date
-    previous_date = (datetime.datetime.today() - datetime.timedelta(days=1)).date()
 
-    # Check if the CSV file exists for the previous date
-    if os.path.exists(csv_file_path):
-        # Import data from the CSV file to the database for the previous date
-        import_csv_to_dbeaver_database_using_mysql(csv_file_path, connection, previous_date)
+    # Import data from the CSV file to the database
+    import_csv_to_dbeaver_database_using_mysql(csv_file_path, connection)
 
     # Close the database connection
     connection.close()
 
-# Schedule the update function to run every night at 1 am
-schedule.every().day.at("01:00").do(update_database_periodically)
+# Schedule the update function to run every 2 hours
+schedule.every(2).hours.do(update_database_periodically)
 print("done updating")
 
 while True:
     schedule.run_pending()
     time.sleep(1)
-
-
