@@ -215,11 +215,9 @@ def process_invoices():
 process_invoices()
 
 
-def import_csv_to_dbeaver_database_using_mysql(csv_file_path, database_connection):
+# Function to import CSV data into the database
+def import_csv_to_dbeaver_database_using_mysql(csv_file_path, database_connection, processed_records):
     cursor = database_connection.cursor()
-
-    # Create a set to store processed records
-    processed_records = set()
 
     with open(csv_file_path, "r") as csvfile:
         reader = csv.reader(csvfile)
@@ -231,7 +229,7 @@ def import_csv_to_dbeaver_database_using_mysql(csv_file_path, database_connectio
             # Create a unique identifier based on the relevant columns
             record_identifier = (invoice_id, row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9])
 
-            # Check if a record with the same identifier already exists
+            # Check if a record with the same identifier already exists in the processed_records set
             if record_identifier not in processed_records:
                 # If not, insert the record
                 cursor.execute(
@@ -244,8 +242,7 @@ def import_csv_to_dbeaver_database_using_mysql(csv_file_path, database_connectio
     cursor.close()
     print("Data imported into the database")
 
-
-
+# Function to update the database periodically
 def update_database_periodically():
     # Connect to the MySQL database
     connection = mysql.connector.connect(
@@ -254,22 +251,25 @@ def update_database_periodically():
         password="e577a1cc",
         database="heroku_cd6163c1f2350a7"
     )
-    
+
     # Specify the CSV file path
     csv_file_path = "outputdataNEW.csv"
-    
+
     # Updating the CSV data
     process_invoices()
 
-    # Import data from the CSV file to the database
-    import_csv_to_dbeaver_database_using_mysql(csv_file_path, connection)
+    # Create a set to store processed records
+    processed_records = set()
+
+    # Import data from the CSV file to the database, passing the processed_records set
+    import_csv_to_dbeaver_database_using_mysql(csv_file_path, connection, processed_records)
 
     # Close the database connection
     connection.close()
 
-# Schedule the update function to run every 2 hours
+# Schedule the update function to run every 10 minutes
 schedule.every(2).hours.do(update_database_periodically)
-print("done updating")
+print("Done updating")
 
 while True:
     schedule.run_pending()
