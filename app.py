@@ -215,6 +215,9 @@ def process_invoices():
 process_invoices()
 
 
+ # Create a set to store processed records
+processed_records = set()
+
 # Function to import CSV data into the database
 def import_csv_to_dbeaver_database_using_mysql(csv_file_path, database_connection, processed_records):
     cursor = database_connection.cursor()
@@ -258,8 +261,6 @@ def update_database_periodically():
     # Updating the CSV data
     process_invoices()
 
-    # Create a set to store processed records
-    processed_records = set()
 
     # Import data from the CSV file to the database, passing the processed_records set
     import_csv_to_dbeaver_database_using_mysql(csv_file_path, connection, processed_records)
@@ -267,10 +268,11 @@ def update_database_periodically():
     # Close the database connection
     connection.close()
 
-# Schedule the update function to run every 10 minutes
-schedule.every(2).hours.do(update_database_periodically)
+# Schedule the update function to run every 30 minutes
+schedule.every(30).minutes.do(update_database_periodically)
 print("Done updating")
 
 while True:
     schedule.run_pending()
     time.sleep(1)
+
