@@ -25,13 +25,13 @@ auth_client = AuthClient(
 
 client = QuickBooks(
         auth_client=auth_client,
-        refresh_token='AB11707677996FvuTy1xjjTbxWgpCm3hcNwVpw63LI61hcHhj8',
+        refresh_token='AB11707811224PwC6NuUNxOJcQWkZQskBiGM1iS79pc8FQjhzg',
         company_id='9130356041310986',
     )
 
 client = QuickBooks(
     auth_client=auth_client,
-    refresh_token='AB11707677996FvuTy1xjjTbxWgpCm3hcNwVpw63LI61hcHhj8',
+    refresh_token='AB11707811224PwC6NuUNxOJcQWkZQskBiGM1iS79pc8FQjhzg',
     company_id='9130356041310986',
     minorversion=69
 )
