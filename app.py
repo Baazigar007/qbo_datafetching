@@ -25,13 +25,13 @@ auth_client = AuthClient(
 
 client = QuickBooks(
         auth_client=auth_client,
-        refresh_token='AB11707811224PwC6NuUNxOJcQWkZQskBiGM1iS79pc8FQjhzg',
+        refresh_token='AB117079036261s21Ofu37ZoSkgjLKYmMhPUcQTNgkK7ECHM0G',
         company_id='9130356041310986',
     )
 
 client = QuickBooks(
     auth_client=auth_client,
-    refresh_token='AB11707811224PwC6NuUNxOJcQWkZQskBiGM1iS79pc8FQjhzg',
+    refresh_token='AB117079036261s21Ofu37ZoSkgjLKYmMhPUcQTNgkK7ECHM0G',
     company_id='9130356041310986',
     minorversion=69
 )
@@ -239,7 +239,7 @@ def import_csv_to_dbeaver_database_using_mysql(csv_file_path, database_connectio
                     "INSERT INTO qbo_new (uuid, invoiceId, date, school, sorority, product, amount, productQty, unitPrice, descriptions) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                     (row[0], invoice_id, row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9])
                 )
-                processed_records.add(record_identifier)
+                processed_records.update(record_identifier)
 
     database_connection.commit()
     cursor.close()
