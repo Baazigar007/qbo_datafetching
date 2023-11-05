@@ -215,12 +215,13 @@ def process_invoices():
 process_invoices()
 
 
- # Create a set to store processed records
-processed_records = set()
 
 # Function to import CSV data into the database
-def import_csv_to_dbeaver_database_using_mysql(csv_file_path, database_connection, processed_records):
+def import_csv_to_dbeaver_database_using_mysql(csv_file_path, database_connection):
     cursor = database_connection.cursor()
+
+    #  Create a set to store processed records
+    processed_records = set()  
 
     with open(csv_file_path, "r") as csvfile:
         reader = csv.reader(csvfile)
@@ -239,7 +240,8 @@ def import_csv_to_dbeaver_database_using_mysql(csv_file_path, database_connectio
                     "INSERT INTO qbo_new (uuid, invoiceId, date, school, sorority, product, amount, productQty, unitPrice, descriptions) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                     (row[0], invoice_id, row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9])
                 )
-                processed_records.update(record_identifier)
+                processed_records.add(record_identifier)
+                # print("Record inserted and updated")
 
     database_connection.commit()
     cursor.close()
@@ -254,25 +256,27 @@ def update_database_periodically():
         password="e577a1cc",
         database="heroku_cd6163c1f2350a7"
     )
-
+    
     # Specify the CSV file path
     csv_file_path = "outputdataNEW.csv"
 
     # Updating the CSV data
     process_invoices()
-
+    
 
     # Import data from the CSV file to the database, passing the processed_records set
-    import_csv_to_dbeaver_database_using_mysql(csv_file_path, connection, processed_records)
+    import_csv_to_dbeaver_database_using_mysql(csv_file_path, connection)
 
     # Close the database connection
     connection.close()
 
 # Schedule the update function to run every 30 minutes
-schedule.every(30).minutes.do(update_database_periodically)
+schedule.every(20).minutes.do(update_database_periodically)
 print("Done updating")
 
 while True:
     schedule.run_pending()
     time.sleep(1)
+
+
 
