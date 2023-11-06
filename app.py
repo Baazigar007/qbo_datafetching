@@ -155,6 +155,7 @@ def process_invoices():
 
 
 
+
     csv_columns = ["uuid", "invoiceId", "date", "school", "sorority", "product", "amount", "productQty", "unitPrice", "descriptions"]
 
 
@@ -213,6 +214,8 @@ def process_invoices():
 
 # Call the function to process the invoices
 process_invoices()
+
+print("CSV file has been updated.")
 
 
 
