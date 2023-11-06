@@ -39,7 +39,7 @@ client = QuickBooks(
 
 # Sending the GET request
 
-invoices = Invoice.all(qb=client,start_position="1", max_results=10)
+invoices = Invoice.all(qb=client,start_position="1", max_results=1000)
 # print(invoices)
 invoices_dict = []
 
@@ -292,7 +292,7 @@ def update_database_periodically():
     connection.close()
 
 # Schedule the update function to run every 30 minutes
-schedule.every(30).seconds.do(update_database_periodically)
+schedule.every(20).minutes.do(update_database_periodically)
 print("Done updating")
 
 while True:
