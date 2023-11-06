@@ -39,7 +39,7 @@ client = QuickBooks(
 
 # Sending the GET request
 
-invoices = Invoice.all(qb=client,start_position="1", max_results=1000,)
+invoices = Invoice.all(qb=client,start_position="1", max_results=10)
 # print(invoices)
 invoices_dict = []
 
@@ -269,6 +269,7 @@ def import_csv_to_dbeaver_database_using_mysql(csv_file_path, database_connectio
 
 # Function to update the database periodically
 def update_database_periodically():
+    print("Starting database update...")
     # Connect to the MySQL database
     connection = mysql.connector.connect(
         host="us-cdbr-east-06.cleardb.net",
@@ -282,6 +283,7 @@ def update_database_periodically():
 
     # Updating the CSV data
     process_invoices()
+    print("Invoices have been processed.")
 
     # Import data from the CSV file to the database, passing the processed_records set
     import_csv_to_dbeaver_database_using_mysql(csv_file_path, connection)
@@ -290,11 +292,14 @@ def update_database_periodically():
     connection.close()
 
 # Schedule the update function to run every 30 minutes
-schedule.every(20).minutes.do(update_database_periodically)
+schedule.every(30).seconds.do(update_database_periodically)
 print("Done updating")
 
 while True:
     schedule.run_pending()
     time.sleep(1)
+
+
+
 
 
