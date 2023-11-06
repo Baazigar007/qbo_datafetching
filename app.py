@@ -211,11 +211,11 @@ def process_invoices():
                     existing_data.append(newmap)
 
     write_data_to_csv(existing_data, "outputdataNEW.csv", csv_columns)
-
+    print("CSV file has been updated.")   
 # Call the function to process the invoices
 process_invoices()
 
-print("CSV file has been updated.")
+
 
 
 
