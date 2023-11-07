@@ -25,13 +25,13 @@ auth_client = AuthClient(
 
 client = QuickBooks(
         auth_client=auth_client,
-        refresh_token='AB11708001921ZkRHk6yOL2COvQkjhTIgFB1jFPOj3EnrOE6aN',
+        refresh_token='AB11708101301zD5v2pyyaHJvnz8FqXpA9F5jxvNlcgigX4fqe',
         company_id='9130356041310986',
     )
 
 client = QuickBooks(
     auth_client=auth_client,
-    refresh_token='AB11708001921ZkRHk6yOL2COvQkjhTIgFB1jFPOj3EnrOE6aN',
+    refresh_token='AB11708101301zD5v2pyyaHJvnz8FqXpA9F5jxvNlcgigX4fqe',
     company_id='9130356041310986',
     minorversion=69
 )
@@ -292,7 +292,7 @@ def update_database_periodically():
     connection.close()
 
 # Schedule the update function to run every 30 minutes
-schedule.every(1).hours.do(update_database_periodically)
+schedule.every(20).minutes.do(update_database_periodically)
 print("Done updating")
 
 while True:
