@@ -217,8 +217,6 @@ process_invoices()
 
 
 
-
-
 import pickle
 
 def load_processed_records():
@@ -258,14 +256,14 @@ def import_csv_to_dbeaver_database_using_mysql(csv_file_path, database_connectio
                     (row[0], invoice_id, row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9])
                 )
                 processed_records.add(record_identifier)
+                # Save updated processed records to persistent storage
+                save_processed_records(processed_records)
                 # print("Record inserted and updated")
 
     database_connection.commit()
     cursor.close()
     print("Data imported into the database")
 
-    # Save updated processed records to persistent storage
-    save_processed_records(processed_records)
 
 # Function to update the database periodically
 def update_database_periodically():
