@@ -11,6 +11,7 @@ import time
 from datetime import datetime, date
 import pandas as pd
 import os
+import pickle
 
 auth_client = AuthClient(
         client_id='ABAIju7db2lIL1HqnR0wTRVKrKyrJkS8ZSrLHBnA52RAKvqY07',
@@ -25,114 +26,126 @@ auth_client = AuthClient(
 
 client = QuickBooks(
         auth_client=auth_client,
-        refresh_token='AB11708191106G9SlJXoNSSAQ24XS2kaxFtk1urBCTjxWKFOml',
+        refresh_token='AB117082760925gbmjVimPptELohP89Cz7LRSe1Kq6eyhhYZts',
         company_id='9130356041310986',
     )
 
-client = QuickBooks(
-    auth_client=auth_client,
-    refresh_token='AB11708191106G9SlJXoNSSAQ24XS2kaxFtk1urBCTjxWKFOml',
-    company_id='9130356041310986',
-    minorversion=69
-)
-
-
-# Sending the GET request
-
-invoices = Invoice.all(qb=client,start_position="1", max_results=1000)
-# print(invoices)
-invoices_dict = []
-
-
-# Getting School 
-def getSchool(customfield):
-    for values in customfield:
-       if values["Name"]=="School":
-          return values["StringValue"]    
-    return ""
-
-
-# Getting Product Name
-def getProductName(Line):
-    for item in Line:
-        if "SalesItemLineDetail" in item:
-            sales_item_line_detail = item["SalesItemLineDetail"]
-            item_ref = sales_item_line_detail.get("ItemRef")
-            if item_ref and "name" in item_ref:
-                product_name = item_ref["name"]
-                if product_name:
-                    return product_name  # Return the product name
-    return None  # Return None if no product name is found
-
-# Getting Unit Price
-def getUnitPrice(Line):
-    for item in Line:
-        if "SalesItemLineDetail" in item:
-            sales_item_line_detail = item["SalesItemLineDetail"]
-            unit_price = sales_item_line_detail.get("UnitPrice")
-            if unit_price is not None:
-                return unit_price  # Return the unit price
-    return None  # Return None if no unit price is found
-
-
-
-# UUID
-def get_uuid():
-  my_uuid = uuid.uuid4()
-
-  my_uuid_string = str(my_uuid)
-
-  return my_uuid_string
-
-
-# Getting Qty
-def getQty(Line):
-    for item in Line:
-        if "SalesItemLineDetail" in item:
-            sales_item_line_detail = item["SalesItemLineDetail"]
-            qty = sales_item_line_detail.get("Qty")
-            if qty is not None:
-                return qty  # Return the quantity
-    return None  # Return None if no quantity is found
-
-# Getting Amount
-
-def getAmount(Line):
- 
-  amount = []
-  for item in Line:
-    if "Amount" not in item:
-      continue
-
-    amount.append(item.get("Amount"))
-
-
-  for price in amount:
-#    print (price,amount)
-   return price
-  
-# Getting Description
-
-def get_descriptions(Line):
-    descriptions = []  # Initialize a list to store descriptions for each line
-    for item in Line:
-        # print(item,"item")
-        # print(isinstance(item, dict),"Description" in item,item["Description"])
-        if isinstance(item, dict) and "Description" in item and item["Description"] is not None:
-            # print("description",descriptions)
-            description = item["Description"]
-            # print(description)
-            descriptions.append(description)
-            # print(descriptions)
-    #return descriptions  
-  # Return the list of descriptions outside of the for loop
-    for d in descriptions:
-        # print (d,descriptions)
-        return d
-  
-
-
 def process_invoices():
+
+    client = QuickBooks(
+        auth_client=auth_client,
+        refresh_token='AB117082760925gbmjVimPptELohP89Cz7LRSe1Kq6eyhhYZts',
+        company_id='9130356041310986',
+        minorversion=69
+    )
+
+    # Sending the GET request
+
+    invoices = Invoice.all(qb=client,start_position="1", max_results=1000)
+    # print(invoices)
+    invoices_dict = []
+
+
+
+    # Getting School 
+    def getSchool(customfield):
+        for values in customfield:
+         if values["Name"]=="School":
+            return values["StringValue"]    
+        return ""
+
+
+    # Getting Product Name
+    def getProductName(Line):
+        for item in Line:
+            if "SalesItemLineDetail" in item:
+                sales_item_line_detail = item["SalesItemLineDetail"]
+                item_ref = sales_item_line_detail.get("ItemRef")
+                if item_ref and "name" in item_ref:
+                    product_name = item_ref["name"]
+                    if product_name:
+                        return product_name  # Return the product name
+        return None  # Return None if no product name is found
+
+    # Getting Unit Price
+    def getUnitPrice(Line):
+        for item in Line:
+            if "SalesItemLineDetail" in item:
+                sales_item_line_detail = item["SalesItemLineDetail"]
+                unit_price = sales_item_line_detail.get("UnitPrice")
+                if unit_price is not None:
+                    return unit_price  # Return the unit price
+        return None  # Return None if no unit price is found
+
+
+    # Getting Unit Price
+    def getUnitPrice(Line):
+        for item in Line:
+            if "SalesItemLineDetail" in item:
+                sales_item_line_detail = item["SalesItemLineDetail"]
+                unit_price = sales_item_line_detail.get("UnitPrice")
+                if unit_price is not None:
+                    return unit_price  # Return the unit price
+        return None  # Return None if no unit price is found
+
+
+
+    # UUID
+    def get_uuid():
+        my_uuid = uuid.uuid4()
+
+        my_uuid_string = str(my_uuid)
+
+        return my_uuid_string
+
+
+    # Getting Qty
+    def getQty(Line):
+        for item in Line:
+            if "SalesItemLineDetail" in item:
+                sales_item_line_detail = item["SalesItemLineDetail"]
+                qty = sales_item_line_detail.get("Qty")
+                if qty is not None:
+                    return qty  # Return the quantity
+        return None  # Return None if no quantity is found
+
+    # Getting Amount
+   
+    def getAmount(Line):
+    
+        amount = []
+        for item in Line:
+            if "Amount" not in item:
+                continue
+
+            amount.append(item.get("Amount"))
+
+
+        for price in amount:
+    #    print (price,amount)
+         return price
+    # Getting Description
+
+    def get_descriptions(Line):
+        descriptions = []  # Initialize a list to store descriptions for each line
+        for item in Line:
+            # print(item,"item")
+            # print(isinstance(item, dict),"Description" in item,item["Description"])
+            if isinstance(item, dict) and "Description" in item and item["Description"] is not None:
+                # print("description",descriptions)
+                description = item["Description"]
+                # print(description)
+                descriptions.append(description)
+                # print(descriptions)
+        #return descriptions  
+    # Return the list of descriptions outside of the for loop
+        for d in descriptions:
+            # print (d,descriptions)
+            return d
+  
+
+
+# def process_invoices():
     
     for invoice in invoices: 
         invoice_dict = invoice.to_dict()
@@ -158,6 +171,7 @@ def process_invoices():
 
     csv_columns = ["uuid", "invoiceId", "date", "school", "sorority", "product", "amount", "productQty", "unitPrice", "descriptions"]
 
+    existing_data = []
 
     def read_existing_data(file_path):
         existing_data = []
@@ -177,11 +191,6 @@ def process_invoices():
             writer.writerows(data)
 
 
-
-    csv_columns = ["uuid", "invoiceId", "date", "school", "sorority", "product", "amount", "productQty", "unitPrice", "descriptions"]
-
-
-# def process_invoices():
     existing_data = read_existing_data("outputdataNEW.csv")
     existing_ids = set(entry["invoiceId"] for entry in existing_data)
 
@@ -211,13 +220,11 @@ def process_invoices():
                     existing_data.append(newmap)
 
     write_data_to_csv(existing_data, "outputdataNEW.csv", csv_columns)
-    print("CSV file has been updated.")   
+    print("CSV file has been updated.")
 # Call the function to process the invoices
 process_invoices()
 
 
-
-import pickle
 
 def load_processed_records():
     try:
@@ -267,6 +274,9 @@ def import_csv_to_dbeaver_database_using_mysql(csv_file_path, database_connectio
 
 # Function to update the database periodically
 def update_database_periodically():
+    
+    process_invoices()
+
     print("Starting database update...")
     # Connect to the MySQL database
     connection = mysql.connector.connect(
@@ -275,13 +285,9 @@ def update_database_periodically():
         password="e577a1cc",
         database="heroku_cd6163c1f2350a7"
     )
-
     # Specify the CSV file path
     csv_file_path = "outputdataNEW.csv"
 
-    # Updating the CSV data
-    process_invoices()
-    print("Invoices have been processed.")
 
     # Import data from the CSV file to the database, passing the processed_records set
     import_csv_to_dbeaver_database_using_mysql(csv_file_path, connection)
@@ -290,13 +296,12 @@ def update_database_periodically():
     connection.close()
 
 # Schedule the update function to run every 30 minutes
-schedule.every(20).minutes.do(update_database_periodically)
+schedule.every(2).hours.do(update_database_periodically)
 print("Done updating")
 
 while True:
     schedule.run_pending()
     time.sleep(1)
-
 
 
 
