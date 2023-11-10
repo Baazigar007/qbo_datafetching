@@ -259,7 +259,7 @@ def import_csv_to_dbeaver_database_using_mysql(csv_file_path, database_connectio
             if record_identifier not in processed_records:
                 # If not, insert the record
                 cursor.execute(
-                    "INSERT INTO qbo_new (uuid, invoiceId, date, school, sorority, product, amount, productQty, unitPrice, descriptions) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                    "INSERT INTO qbo_data (uuid, invoiceId, date, school, sorority, product, amount, productQty, unitPrice, descriptions) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                     (row[0], invoice_id, row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9])
                 )
                 processed_records.add(record_identifier)
