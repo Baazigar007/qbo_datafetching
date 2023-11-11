@@ -236,38 +236,38 @@ def save_processed_records(processed_records):
     with open('processed_records.dat', 'wb') as f:
         pickle.dump(processed_records, f)
 
-# # Function to import CSV data into the database
-# def import_csv_to_dbeaver_database_using_mysql(csv_file_path, database_connection):
-#     cursor = database_connection.cursor()
+# Function to import CSV data into the database
+def import_csv_to_dbeaver_database_using_mysql(csv_file_path, database_connection):
+    cursor = database_connection.cursor()
 
-#     # Load processed records from persistent storage
-#     processed_records = load_processed_records()
+    # Load processed records from persistent storage
+    processed_records = load_processed_records()
 
-#     with open(csv_file_path, "r") as csvfile:
-#         reader = csv.reader(csvfile)
-#         next(reader, None)  # Skip the header row
+    with open(csv_file_path, "r") as csvfile:
+        reader = csv.reader(csvfile)
+        next(reader, None)  # Skip the header row
 
-#         for row in reader:
-#             invoice_id = row[1]  # Assuming invoiceId is in the second column
+        for row in reader:
+            invoice_id = row[1]  # Assuming invoiceId is in the second column
 
-#             # Create a unique identifier based on the relevant columns
-#             record_identifier = (invoice_id, row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9])
+            # Create a unique identifier based on the relevant columns
+            record_identifier = (invoice_id, row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9])
 
-#             # Check if a record with the same identifier already exists in the processed_records set
-#             if record_identifier not in processed_records:
-#                 # If not, insert the record
-#                 cursor.execute(
-#                     "INSERT INTO qbo_data (uuid, invoiceId, date, school, sorority, product, amount, productQty, unitPrice, descriptions) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-#                     (row[0], invoice_id, row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9])
-#                 )
-#                 processed_records.add(record_identifier)
-#                 # Save updated processed records to persistent storage
-#                 save_processed_records(processed_records)
-#                 # print("Record inserted and updated")
+            # Check if a record with the same identifier already exists in the processed_records set
+            if record_identifier not in processed_records:
+                # If not, insert the record
+                cursor.execute(
+                    "INSERT INTO qbo_data (uuid, invoiceId, date, school, sorority, product, amount, productQty, unitPrice, descriptions) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                    (row[0], invoice_id, row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9])
+                )
+                processed_records.add(record_identifier)
+                # Save updated processed records to persistent storage
+                save_processed_records(processed_records)
+                # print("Record inserted and updated")
 
-#     database_connection.commit()
-#     cursor.close()
-#     print("Data imported into the database")
+    database_connection.commit()
+    cursor.close()
+    print("Data imported into the database")
 
 
 # Function to update the database periodically
@@ -294,7 +294,7 @@ def update_database_periodically():
     connection.close()
 
 # Schedule the update function to run every 30 minutes
-schedule.every(59).minutes.do(update_database_periodically)
+schedule.every(30).minutes.do(update_database_periodically)
 print("Done updating")
 
 while True:
