@@ -26,7 +26,7 @@ auth_client = AuthClient(
 
 client = QuickBooks(
         auth_client=auth_client,
-        refresh_token='AB117083105298e7bjl4YO4n2olI3wuOaUnDVMuX6VditUG4BF',
+        refresh_token='AB11708406350z7HYG5MMpa8uSKXv894uUV2uoU7JvPuewukF1',
         company_id='9130356041310986',
     )
 
@@ -34,7 +34,7 @@ def process_invoices():
 
     client = QuickBooks(
         auth_client=auth_client,
-        refresh_token='AB117083105298e7bjl4YO4n2olI3wuOaUnDVMuX6VditUG4BF',
+        refresh_token='AB11708406350z7HYG5MMpa8uSKXv894uUV2uoU7JvPuewukF1',
         company_id='9130356041310986',
         minorversion=69
     )
