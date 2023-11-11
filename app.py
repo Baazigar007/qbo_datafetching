@@ -34,7 +34,7 @@ def process_invoices():
 
     client = QuickBooks(
         auth_client=auth_client,
-        # refresh_token='AB11708417674AKT6hynkgYJ1JMrCBOakvPjbwkUQFSoqgTG9I',
+        refresh_token='AB11708417674AKT6hynkgYJ1JMrCBOakvPjbwkUQFSoqgTG9I',
         company_id='9130356041310986',
         minorversion=69
     )
@@ -294,7 +294,7 @@ def update_database_periodically():
     connection.close()
 
 # Schedule the update function to run every 30 minutes
-schedule.every(30).minutes.do(update_database_periodically)
+schedule.every(59).minutes.do(update_database_periodically)
 print("Done updating")
 
 while True:
