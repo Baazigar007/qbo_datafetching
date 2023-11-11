@@ -144,8 +144,6 @@ def process_invoices():
             return d
   
 
-
-# def process_invoices():
     
     for invoice in invoices: 
         invoice_dict = invoice.to_dict()
