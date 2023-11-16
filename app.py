@@ -302,7 +302,7 @@ def import_csv_to_dbeaver_database_using_mysql(csv_file_path, database_connectio
 
             # Check if a record with the same data already exists in the table
             cursor.execute(
-                "SELECT * FROM qbo_new WHERE (invoiceId, date, school, sorority, product, amount, productQty, unitPrice, descriptions) = (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                "SELECT * FROM qbo_data WHERE (invoiceId, date, school, sorority, product, amount, productQty, unitPrice, descriptions) = (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
                 (invoice_id, row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9])
             )
             records = cursor.fetchall()
@@ -310,7 +310,7 @@ def import_csv_to_dbeaver_database_using_mysql(csv_file_path, database_connectio
             if not records:
                 # If not, insert the record
                 cursor.execute(
-                    "INSERT INTO qbo_new (uuid, invoiceId, date, school, sorority, product, amount, productQty, unitPrice, descriptions) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                    "INSERT INTO qbo_data (uuid, invoiceId, date, school, sorority, product, amount, productQty, unitPrice, descriptions) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                     (row[0], invoice_id, row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9])
                 )
                 database_connection.commit()
@@ -331,14 +331,14 @@ def update_database_periodically():
     print("Starting database update...")
     # Connect to the MySQL database
     connection = mysql.connector.connect(
-        # host="us-cluster-east-01.k8s.cleardb.net",
-        # user="b1255d4e6e4e19",
-        # password="2ba88c88",
-        # database="heroku_eb97e8847371605"
-        host="us-cdbr-east-06.cleardb.net",
-        user="b529606bdcbbbf",
-        password="e577a1cc",
-        database="heroku_cd6163c1f2350a7"
+        host="us-cluster-east-01.k8s.cleardb.net",
+        user="b1255d4e6e4e19",
+        password="2ba88c88",
+        database="heroku_eb97e8847371605"
+        # host="us-cdbr-east-06.cleardb.net",
+        # user="b529606bdcbbbf",
+        # password="e577a1cc",
+        # database="heroku_cd6163c1f2350a7"
     
     )
     # Specify the CSV file path
@@ -352,7 +352,7 @@ def update_database_periodically():
     connection.close()
 
 # Schedule the update function to run every 30 minutes
-schedule.every(20).minutes.do(update_database_periodically)
+schedule.every(59).minutes.do(update_database_periodically)
 print("Done updating")
 
 while True:
