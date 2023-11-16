@@ -24,19 +24,19 @@ auth_client = AuthClient(
 
 
 
-# client = QuickBooks(
-#         auth_client=auth_client,
-#         refresh_token='AB11708794299l3mPuxfAu0phAt26DISvLBh0aFpjG0MWbJRBU',
-#         company_id='9130356041310986',
-#     )
+client = QuickBooks(
+        auth_client=auth_client,
+        refresh_token='AB11708794299l3mPuxfAu0phAt26DISvLBh0aFpjG0MWbJRBU',
+        company_id='9130356041310986',
+    )
 
-# def process_invoices():
+def process_invoices():
 
-#     client = QuickBooks(
-#         auth_client=auth_client,
-#         refresh_token='AB11708794299l3mPuxfAu0phAt26DISvLBh0aFpjG0MWbJRBU',
-#         company_id='9130356041310986',
-#         minorversion=69
+    client = QuickBooks(
+        auth_client=auth_client,
+        refresh_token='AB11708794299l3mPuxfAu0phAt26DISvLBh0aFpjG0MWbJRBU',
+        company_id='9130356041310986',
+        minorversion=69
     )
 
     # Sending the GET request
@@ -240,53 +240,85 @@ process_invoices()
 #         pickle.dump(processed_records, f)
 
 
-def load_processed_records():
-    try:
-        with open('processed_records.txt', 'r') as f:
-            processed_records = set(line.strip() for line in f)
-    except:
-        processed_records = set()
-    return processed_records
+# def load_processed_records():
+#     try:
+#         with open('processed_records.txt', 'r') as f:
+#             processed_records = set(line.strip() for line in f)
+#     except:
+#         processed_records = set()
+#     return processed_records
 
-def save_processed_records(processed_records):
-    with open('processed_records.txt', 'w') as f:
-        for record in processed_records:
-            # f.write("%s\n" % record)
-            f.write("%s\n" % str(record))
-
-
+# def save_processed_records(processed_records):
+#     with open('processed_records.txt', 'w') as f:
+#         for record in processed_records:
+#             # f.write("%s\n" % record)
+#             f.write("%s\n" % str(record))
 
 
-# Function to import CSV data into the database
+
+
+# # Function to import CSV data into the database
+# def import_csv_to_dbeaver_database_using_mysql(csv_file_path, database_connection):
+#     cursor = database_connection.cursor()
+
+#     # Load processed records from persistent storage
+#     processed_records = load_processed_records()
+
+#     with open(csv_file_path, "r") as csvfile:
+#         reader = csv.reader(csvfile)
+#         next(reader, None)  # Skip the header row
+
+#         for row in reader:
+#             invoice_id = row[1]  # Assuming invoiceId is in the second column
+
+#             # Create a unique identifier based on the relevant columns
+#             record_identifier = (invoice_id, row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9])
+
+#             # Check if a record with the same identifier already exists in the processed_records set
+#             if record_identifier not in processed_records:
+#                 # If not, insert the record
+#                 cursor.execute(
+#                     "INSERT INTO qbo_data (uuid, invoiceId, date, school, sorority, product, amount, productQty, unitPrice, descriptions) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+#                     (row[0], invoice_id, row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9])
+#                 )
+#                 processed_records.add(record_identifier)
+#                 # Save updated processed records to persistent storage
+#                 save_processed_records(processed_records)
+#                 # print("Record inserted and updated")
+
+#     database_connection.commit()
+#     cursor.close()
+#     print("Data imported into the database")
+
 def import_csv_to_dbeaver_database_using_mysql(csv_file_path, database_connection):
     cursor = database_connection.cursor()
 
-    # Load processed records from persistent storage
-    processed_records = load_processed_records()
-
     with open(csv_file_path, "r") as csvfile:
         reader = csv.reader(csvfile)
-        next(reader, None)  # Skip the header row
+        next(reader, None) # Skip the header row
 
         for row in reader:
-            invoice_id = row[1]  # Assuming invoiceId is in the second column
+            invoice_id = row[1] # Assuming invoiceId is in the second column
 
-            # Create a unique identifier based on the relevant columns
-            record_identifier = (invoice_id, row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9])
+            # Check if a record with the same data already exists in the table
+            cursor.execute(
+                "SELECT * FROM qbo_new WHERE (invoiceId, date, school, sorority, product, amount, productQty, unitPrice, descriptions) = (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                (invoice_id, row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9])
+            )
+            records = cursor.fetchall()
 
-            # Check if a record with the same identifier already exists in the processed_records set
-            if record_identifier not in processed_records:
+            if not records:
                 # If not, insert the record
                 cursor.execute(
-                    "INSERT INTO qbo_data (uuid, invoiceId, date, school, sorority, product, amount, productQty, unitPrice, descriptions) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                    "INSERT INTO qbo_new (uuid, invoiceId, date, school, sorority, product, amount, productQty, unitPrice, descriptions) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                     (row[0], invoice_id, row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9])
                 )
-                processed_records.add(record_identifier)
-                # Save updated processed records to persistent storage
-                save_processed_records(processed_records)
-                # print("Record inserted and updated")
+                database_connection.commit()
+                # print("Record inserted")
+            # else:
+                # print("Record already exists in the database. Skipping...")'
+                # pass
 
-    database_connection.commit()
     cursor.close()
     print("Data imported into the database")
 
@@ -299,10 +331,14 @@ def update_database_periodically():
     print("Starting database update...")
     # Connect to the MySQL database
     connection = mysql.connector.connect(
-        host="us-cluster-east-01.k8s.cleardb.net",
-        user="b1255d4e6e4e19",
-        password="2ba88c88",
-        database="heroku_eb97e8847371605"
+        # host="us-cluster-east-01.k8s.cleardb.net",
+        # user="b1255d4e6e4e19",
+        # password="2ba88c88",
+        # database="heroku_eb97e8847371605"
+        host="us-cdbr-east-06.cleardb.net",
+        user="b529606bdcbbbf",
+        password="e577a1cc",
+        database="heroku_cd6163c1f2350a7"
     
     )
     # Specify the CSV file path
@@ -316,7 +352,7 @@ def update_database_periodically():
     connection.close()
 
 # Schedule the update function to run every 30 minutes
-schedule.every(59).minutes.do(update_database_periodically)
+schedule.every(20).minutes.do(update_database_periodically)
 print("Done updating")
 
 while True:
