@@ -26,7 +26,7 @@ auth_client = AuthClient(
 
 client = QuickBooks(
         auth_client=auth_client,
-        refresh_token='AB11708417674AKT6hynkgYJ1JMrCBOakvPjbwkUQFSoqgTG9I',
+        refresh_token='AB11708794299l3mPuxfAu0phAt26DISvLBh0aFpjG0MWbJRBU',
         company_id='9130356041310986',
     )
 
@@ -34,7 +34,7 @@ def process_invoices():
 
     client = QuickBooks(
         auth_client=auth_client,
-        refresh_token='AB11708417674AKT6hynkgYJ1JMrCBOakvPjbwkUQFSoqgTG9I',
+        refresh_token='AB11708794299l3mPuxfAu0phAt26DISvLBh0aFpjG0MWbJRBU',
         company_id='9130356041310986',
         minorversion=69
     )
@@ -185,7 +185,10 @@ def process_invoices():
     def write_data_to_csv(data, file_path, csv_columns):
         with open(file_path, 'w', newline='', encoding="utf-8") as output_file:
             writer = csv.DictWriter(output_file, fieldnames=csv_columns)
-            writer.writeheader()
+            # writer.writeheader()
+            # writer.writerows(data)
+            if output_file.tell() == 0:  # Check if the file is empty
+                writer.writeheader()
             writer.writerows(data)
 
 
@@ -224,17 +227,35 @@ process_invoices()
 
 
 
+# def load_processed_records():
+#     try:
+#         with open('processed_records.dat', 'rb') as f:
+#             processed_records = pickle.load(f)
+#     except:
+#         processed_records = set()
+#     return processed_records
+
+# def save_processed_records(processed_records):
+#     with open('processed_records.dat', 'wb') as f:
+#         pickle.dump(processed_records, f)
+
+
 def load_processed_records():
     try:
-        with open('processed_records.dat', 'rb') as f:
-            processed_records = pickle.load(f)
+        with open('processed_records.txt', 'r') as f:
+            processed_records = set(line.strip() for line in f)
     except:
         processed_records = set()
     return processed_records
 
 def save_processed_records(processed_records):
-    with open('processed_records.dat', 'wb') as f:
-        pickle.dump(processed_records, f)
+    with open('processed_records.txt', 'w') as f:
+        for record in processed_records:
+            # f.write("%s\n" % record)
+            f.write("%s\n" % str(record))
+
+
+
 
 # Function to import CSV data into the database
 def import_csv_to_dbeaver_database_using_mysql(csv_file_path, database_connection):
@@ -278,10 +299,11 @@ def update_database_periodically():
     print("Starting database update...")
     # Connect to the MySQL database
     connection = mysql.connector.connect(
-        host="us-cdbr-east-06.cleardb.net",
-        user="b529606bdcbbbf",
-        password="e577a1cc",
-        database="heroku_cd6163c1f2350a7"
+        host="us-cluster-east-01.k8s.cleardb.net",
+        user="b1255d4e6e4e19",
+        password="2ba88c88",
+        database="heroku_eb97e8847371605"
+    
     )
     # Specify the CSV file path
     csv_file_path = "outputdataNEW.csv"
@@ -294,12 +316,14 @@ def update_database_periodically():
     connection.close()
 
 # Schedule the update function to run every 30 minutes
-schedule.every(30).minutes.do(update_database_periodically)
+schedule.every(15).minutes.do(update_database_periodically)
 print("Done updating")
 
 while True:
     schedule.run_pending()
     time.sleep(1)
+
+
 
 
 
