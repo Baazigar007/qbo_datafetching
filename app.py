@@ -26,7 +26,7 @@ auth_client = AuthClient(
 
 client = QuickBooks(
         auth_client=auth_client,
-        refresh_token='AB11708944876i867eBcIQ50P1aB9zcbbvYHY8qjMFiTooiuX1',
+        refresh_token='AB1170896509325jIaJChRxDXfhuPgeOqtNk6IR0vzCFxjjn7w',
         company_id='9130356041310986',
     )
 
@@ -34,7 +34,7 @@ def process_invoices():
 
     client = QuickBooks(
         auth_client=auth_client,
-        refresh_token='AB11708944876i867eBcIQ50P1aB9zcbbvYHY8qjMFiTooiuX1',
+        refresh_token='AB1170896509325jIaJChRxDXfhuPgeOqtNk6IR0vzCFxjjn7w',
         company_id='9130356041310986',
         minorversion=69
     )
@@ -302,7 +302,7 @@ def import_csv_to_dbeaver_database_using_mysql(csv_file_path, database_connectio
 
             # Check if a record with the same data already exists in the table
             cursor.execute(
-                "SELECT * FROM qbo_new WHERE (invoiceId,descriptions) = (%s, %s)",
+                "SELECT * FROM qbo_data WHERE (invoiceId,descriptions) = (%s, %s)",
                 (invoice_id, row[9])
             )
             records = cursor.fetchall()
@@ -310,7 +310,7 @@ def import_csv_to_dbeaver_database_using_mysql(csv_file_path, database_connectio
             if not records:
                 # If not, insert the record
                 cursor.execute(
-                    "INSERT INTO qbo_new (uuid, invoiceId, date, school, sorority, product, amount, productQty, unitPrice, descriptions) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                    "INSERT INTO qbo_data (uuid, invoiceId, date, school, sorority, product, amount, productQty, unitPrice, descriptions) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                     (row[0], invoice_id, row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9])
                 )
                 database_connection.commit()
@@ -352,7 +352,7 @@ def update_database_periodically():
     connection.close()
 
 # Schedule the update function to run every 30 minutes
-# schedule.every(30).minutes.do(update_database_periodically)
+schedule.every(15).minutes.do(update_database_periodically)
 print("Done updating")
 
 while True:
