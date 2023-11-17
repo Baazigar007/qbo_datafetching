@@ -8,10 +8,9 @@ import csv
 import mysql.connector
 import schedule
 import time
-from datetime import datetime, date
+from datetime import datetime, timedelta
 import pandas as pd
 import os
-import pickle
 
 auth_client = AuthClient(
         client_id='ABAIju7db2lIL1HqnR0wTRVKrKyrJkS8ZSrLHBnA52RAKvqY07',
@@ -22,11 +21,11 @@ auth_client = AuthClient(
     )
 
 
-
+refresh_token = os.environ.get('QUICKBOOKS_REFRESH_TOKEN')
 
 client = QuickBooks(
         auth_client=auth_client,
-        refresh_token='AB1170896509325jIaJChRxDXfhuPgeOqtNk6IR0vzCFxjjn7w',
+        refresh_token=refresh_token,
         company_id='9130356041310986',
     )
 
@@ -34,13 +33,16 @@ def process_invoices():
 
     client = QuickBooks(
         auth_client=auth_client,
-        refresh_token='AB1170896509325jIaJChRxDXfhuPgeOqtNk6IR0vzCFxjjn7w',
+        refresh_token=refresh_token,
         company_id='9130356041310986',
         minorversion=69
     )
 
-    # Sending the GET request
 
+    #  # Getting the date of the previous day
+    # previous_date = (datetime.now() - timedelta(days=1)).date()
+
+    # Sending the GET request
     invoices = Invoice.all(qb=client,start_position="1", max_results=1000)
     # print(invoices)
     invoices_dict = []
@@ -143,26 +145,27 @@ def process_invoices():
             # print (d,descriptions)
             return d
   
-
+    previous_date = datetime.now() - timedelta(days=1)
+    previous_date_str = previous_date.strftime("%Y-%m-%d")
     
-    for invoice in invoices: 
+     # Manually filter invoices based on the transaction date
+    filtered_invoices = [invoice for invoice in invoices if invoice.to_dict()["TxnDate"] == previous_date_str]
+
+    for invoice in filtered_invoices:
         invoice_dict = invoice.to_dict()
         newmap = {}
-        newmap["uuid"]=get_uuid()
-        newmap["invoiceId"]=invoice_dict["DocNumber"]
-        newmap["date"]=invoice_dict["TxnDate"]
-        newmap["school"]=getSchool(invoice_dict["CustomField"])
+        newmap["uuid"] = get_uuid()
+        newmap["invoiceId"] = invoice_dict["DocNumber"]
+        newmap["date"] = invoice_dict["TxnDate"]
+        newmap["school"] = getSchool(invoice_dict["CustomField"])
         newmap["sorority"] = invoice_dict["CustomerRef"]["name"]
-        newmap['product']=getProductName(invoice_dict["Line"])
-        newmap["amount"]=getAmount(invoice_dict["Line"])
-        newmap["productQty"]=getQty(invoice_dict["Line"])
-        newmap["unitPrice"]=getUnitPrice(invoice_dict["Line"])
+        newmap['product'] = getProductName(invoice_dict["Line"])
+        newmap["amount"] = getAmount(invoice_dict["Line"])
+        newmap["productQty"] = getQty(invoice_dict["Line"])
+        newmap["unitPrice"] = getUnitPrice(invoice_dict["Line"])
         newmap["descriptions"] = get_descriptions(invoice_dict["Line"])
-        
-        
-        invoices_dict.append(newmap) 
 
-    print("invoices_dict")
+        invoices_dict.append(newmap)
 
 
 
@@ -195,7 +198,8 @@ def process_invoices():
     existing_data = read_existing_data("outputdataNEW.csv")
     existing_ids = set(entry["invoiceId"] for entry in existing_data)
 
-    for invoice in invoices:
+    # for invoice in invoices:
+    for invoice in filtered_invoices:
         invoice_dict = invoice.to_dict()
         invoice_id = invoice_dict["DocNumber"]
 
@@ -226,70 +230,6 @@ def process_invoices():
 process_invoices()
 
 
-
-# def load_processed_records():
-#     try:
-#         with open('processed_records.dat', 'rb') as f:
-#             processed_records = pickle.load(f)
-#     except:
-#         processed_records = set()
-#     return processed_records
-
-# def save_processed_records(processed_records):
-#     with open('processed_records.dat', 'wb') as f:
-#         pickle.dump(processed_records, f)
-
-
-# def load_processed_records():
-#     try:
-#         with open('processed_records.txt', 'r') as f:
-#             processed_records = set(line.strip() for line in f)
-#     except:
-#         processed_records = set()
-#     return processed_records
-
-# def save_processed_records(processed_records):
-#     with open('processed_records.txt', 'w') as f:
-#         for record in processed_records:
-#             # f.write("%s\n" % record)
-#             f.write("%s\n" % str(record))
-
-
-
-
-# # Function to import CSV data into the database
-# def import_csv_to_dbeaver_database_using_mysql(csv_file_path, database_connection):
-#     cursor = database_connection.cursor()
-
-#     # Load processed records from persistent storage
-#     processed_records = load_processed_records()
-
-#     with open(csv_file_path, "r") as csvfile:
-#         reader = csv.reader(csvfile)
-#         next(reader, None)  # Skip the header row
-
-#         for row in reader:
-#             invoice_id = row[1]  # Assuming invoiceId is in the second column
-
-#             # Create a unique identifier based on the relevant columns
-#             record_identifier = (invoice_id, row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9])
-
-#             # Check if a record with the same identifier already exists in the processed_records set
-#             if record_identifier not in processed_records:
-#                 # If not, insert the record
-#                 cursor.execute(
-#                     "INSERT INTO qbo_data (uuid, invoiceId, date, school, sorority, product, amount, productQty, unitPrice, descriptions) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-#                     (row[0], invoice_id, row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9])
-#                 )
-#                 processed_records.add(record_identifier)
-#                 # Save updated processed records to persistent storage
-#                 save_processed_records(processed_records)
-#                 # print("Record inserted and updated")
-
-#     database_connection.commit()
-#     cursor.close()
-#     print("Data imported into the database")
-
 def import_csv_to_dbeaver_database_using_mysql(csv_file_path, database_connection):
     cursor = database_connection.cursor()
 
@@ -298,26 +238,12 @@ def import_csv_to_dbeaver_database_using_mysql(csv_file_path, database_connectio
         next(reader, None) # Skip the header row
 
         for row in reader:
-            invoice_id = row[1] # Assuming invoiceId is in the second column
-
-            # Check if a record with the same data already exists in the table
-            cursor.execute(
-                "SELECT * FROM qbo_data WHERE (invoiceId,descriptions) = (%s, %s)",
-                (invoice_id, row[9])
-            )
-            records = cursor.fetchall()
-
-            if not records:
                 # If not, insert the record
                 cursor.execute(
                     "INSERT INTO qbo_data (uuid, invoiceId, date, school, sorority, product, amount, productQty, unitPrice, descriptions) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                    (row[0], invoice_id, row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9])
+                    (row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9])
                 )
                 database_connection.commit()
-                # print("Record inserted")
-            # else:
-                # print("Record already exists in the database. Skipping...")'
-                # pass
 
     cursor.close()
     print("Data imported into the database")
@@ -331,14 +257,10 @@ def update_database_periodically():
     print("Starting database update...")
     # Connect to the MySQL database
     connection = mysql.connector.connect(
-        # host="us-cluster-east-01.k8s.cleardb.net",
-        # user="b1255d4e6e4e19",
-        # password="2ba88c88",
-        # database="heroku_eb97e8847371605"
-        host="us-cdbr-east-06.cleardb.net",
-        user="b529606bdcbbbf",
-        password="e577a1cc",
-        database="heroku_cd6163c1f2350a7"
+        host="us-cluster-east-01.k8s.cleardb.net",
+        user="b1255d4e6e4e19",
+        password="2ba88c88",
+        database="heroku_eb97e8847371605"
     
     )
     # Specify the CSV file path
@@ -351,8 +273,9 @@ def update_database_periodically():
     # Close the database connection
     connection.close()
 
-# Schedule the update function to run every 30 minutes
-schedule.every(1).hours.do(update_database_periodically)
+# Schedule the update function to run every day at 12 am
+# schedule.every().day.at("12:00").do(update_database_periodically)
+schedule.every(5).minutes.do(update_database_periodically)
 print("Done updating")
 
 while True:
