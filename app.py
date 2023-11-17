@@ -257,10 +257,14 @@ def update_database_periodically():
     print("Starting database update...")
     # Connect to the MySQL database
     connection = mysql.connector.connect(
-        host="us-cluster-east-01.k8s.cleardb.net",
-        user="b1255d4e6e4e19",
-        password="2ba88c88",
-        database="heroku_eb97e8847371605"
+        # host="us-cluster-east-01.k8s.cleardb.net",
+        # user="b1255d4e6e4e19",
+        # password="2ba88c88",
+        # database="heroku_eb97e8847371605"
+        host="us-cdbr-east-06.cleardb.net",
+        user="b529606bdcbbbf",
+        password="e577a1cc",
+        database="heroku_cd6163c1f2350a7"
     
     )
     # Specify the CSV file path
