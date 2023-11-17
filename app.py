@@ -302,8 +302,8 @@ def import_csv_to_dbeaver_database_using_mysql(csv_file_path, database_connectio
 
             # Check if a record with the same data already exists in the table
             cursor.execute(
-                "SELECT * FROM qbo_new WHERE (invoiceId, date, school, sorority, product, amount, productQty, unitPrice, descriptions) = (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                (invoice_id, row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9])
+                "SELECT * FROM qbo_new WHERE (invoiceId,descriptions) = (%s, %s)",
+                (invoice_id, row[9])
             )
             records = cursor.fetchall()
 
@@ -352,7 +352,7 @@ def update_database_periodically():
     connection.close()
 
 # Schedule the update function to run every 30 minutes
-# schedule.every(30).minutes.do(update_database_periodically)
+schedule.every(30).minutes.do(update_database_periodically)
 print("Done updating")
 
 while True:
