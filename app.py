@@ -257,10 +257,14 @@ def update_database_periodically():
     print("Starting database update...")
     # Connect to the MySQL database
     connection = mysql.connector.connect(
-        host="us-cluster-east-01.k8s.cleardb.net",
-        user="b1255d4e6e4e19",
-        password="2ba88c88",
-        database="heroku_eb97e8847371605"
+        # host="us-cluster-east-01.k8s.cleardb.net",
+        # user="b1255d4e6e4e19",
+        # password="2ba88c88",
+        # database="heroku_eb97e8847371605"
+        host="39q6t8.stackhero-network.com",
+        user="qb_sync",
+        password="qbo123",
+        database="qbo"    
         
     
     )
@@ -275,8 +279,8 @@ def update_database_periodically():
     connection.close()
 
 # Schedule the update function to run every day at 12 am
-schedule.every().day.at("00:00:00").do(update_database_periodically)
-# schedule.every(5).minutes.do(update_database_periodically)
+# schedule.every().day.at("00:00:00").do(update_database_periodically)
+schedule.every(5).minutes.do(update_database_periodically)
 print("Done updating")
 
 while True:
