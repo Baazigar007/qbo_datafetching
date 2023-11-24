@@ -275,7 +275,7 @@ def update_database_periodically():
     connection.close()
 
 # Schedule the update function to run every day at 12 am 
-schedule.every().day.at("17:05:00").do(update_database_periodically)
+schedule.every().day.at("18:08:00").do(update_database_periodically)
 # schedule.every(5).minutes.do(update_database_periodically)
 print("Done updating")
 
