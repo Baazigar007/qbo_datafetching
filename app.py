@@ -21,11 +21,11 @@ auth_client = AuthClient(
     )
 
 
-refresh_token = os.environ.get('QUICKBOOKS_REFRESH_TOKEN')
+# refresh_token = os.environ.get('QUICKBOOKS_REFRESH_TOKEN')
 
 client = QuickBooks(
         auth_client=auth_client,
-        refresh_token=refresh_token,
+        refresh_token="AB11709575408omOLvbnKAYLZLkzHsUzfSJnV1CVu7p6i47NJO",
         company_id='9130356041310986',
     )
 
@@ -33,7 +33,7 @@ def process_invoices():
 
     client = QuickBooks(
         auth_client=auth_client,
-        refresh_token=refresh_token,
+        refresh_token="AB11709575408omOLvbnKAYLZLkzHsUzfSJnV1CVu7p6i47NJO",
         company_id='9130356041310986',
         minorversion=69
     )
