@@ -25,7 +25,7 @@ auth_client = AuthClient(
 
 client = QuickBooks(
         auth_client=auth_client,
-        refresh_token="AB11709830584jjvxzAvKbGIb9nJjow6dJCxPmM4Od7J0OHkVf",
+        refresh_token="AB11709920558ozXShduYdvUPwC0puFVFjBCHhwAaLRdRxwMzD",
         company_id='9130356041310986',
     )
 
@@ -33,7 +33,7 @@ def process_invoices():
 
     client = QuickBooks(
         auth_client=auth_client,
-        refresh_token="AB11709830584jjvxzAvKbGIb9nJjow6dJCxPmM4Od7J0OHkVf",
+        refresh_token="AB11709920558ozXShduYdvUPwC0puFVFjBCHhwAaLRdRxwMzD",
         company_id='9130356041310986',
         minorversion=69
     )
@@ -275,8 +275,8 @@ def update_database_periodically():
     connection.close()
 
 # Schedule the update function to run every day at 12 am 
-schedule.every().day.at("17:00:00").do(update_database_periodically)
-# schedule.every(5).minutes.do(update_database_periodically)
+# schedule.every().day.at("17:00:00").do(update_database_periodically)
+schedule.every(5).minutes.do(update_database_periodically)
 print("Done updating")
 
 while True:
