@@ -12,24 +12,25 @@ from datetime import datetime, timedelta
 import pandas as pd
 import os
 
-auth_client = AuthClient(
-        client_id='ABAIju7db2lIL1HqnR0wTRVKrKyrJkS8ZSrLHBnA52RAKvqY07',
-        client_secret='2usElguOgftbR3VTkox3RyPAGjPJRbapvREUfmE3',
-        # access_token="",  # If you do not pass this in, the Quickbooks client will call refresh and get a new access token. 
-        environment='production',
-        redirect_uri='https://developer.intuit.com/v2/OAuth2Playground/RedirectUrl',
-    )
+def process_invoices():
+
+    auth_client = AuthClient(
+            client_id='ABAIju7db2lIL1HqnR0wTRVKrKyrJkS8ZSrLHBnA52RAKvqY07',
+            client_secret='2usElguOgftbR3VTkox3RyPAGjPJRbapvREUfmE3',
+            # access_token="",  # If you do not pass this in, the Quickbooks client will call refresh and get a new access token. 
+            environment='production',
+            redirect_uri='https://developer.intuit.com/v2/OAuth2Playground/RedirectUrl',
+        )
 
 
 # refresh_token = os.environ.get('QUICKBOOKS_REFRESH_TOKEN')
 
-client = QuickBooks(
-        auth_client=auth_client,
-        refresh_token="AB11710166664wCHJSfc8tuATIn6ny6ssdDwUkYGTWx1VmCkeQ",
-        company_id='9130356041310986',
-    )
-
-def process_invoices():
+    client = QuickBooks(
+            auth_client=auth_client,
+            # refresh_token=refresh_token,
+            refresh_token="AB11710166664wCHJSfc8tuATIn6ny6ssdDwUkYGTWx1VmCkeQ",
+            company_id='9130356041310986',
+        )
 
     client = QuickBooks(
         auth_client=auth_client,
@@ -39,8 +40,6 @@ def process_invoices():
     )
 
 
-    #  # Getting the date of the previous day
-    # previous_date = (datetime.now() - timedelta(days=1)).date()
 
     # Sending the GET request
     invoices = Invoice.all(qb=client,start_position="1", max_results=1000)
