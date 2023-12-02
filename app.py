@@ -17,7 +17,7 @@ def process_invoices():
     auth_client = AuthClient(
             client_id='ABAIju7db2lIL1HqnR0wTRVKrKyrJkS8ZSrLHBnA52RAKvqY07',
             client_secret='2usElguOgftbR3VTkox3RyPAGjPJRbapvREUfmE3',
-            access_token="",  # If you do not pass this in, the Quickbooks client will call refresh and get a new access token. 
+            # access_token="",  # If you do not pass this in, the Quickbooks client will call refresh and get a new access token. 
             environment='production',
             redirect_uri='https://developer.intuit.com/v2/OAuth2Playground/RedirectUrl',
         )
@@ -274,8 +274,8 @@ def update_database_periodically():
     connection.close()
 
 # Schedule the update function to run every day at 12 am 
-schedule.every().day.at("17:00:00").do(update_database_periodically)
-# schedule.every(5).minutes.do(update_database_periodically)
+# schedule.every().day.at("17:00:00").do(update_database_periodically)
+schedule.every(5).minutes.do(update_database_periodically)
 print("Done updating")
 
 while True:
