@@ -17,7 +17,7 @@ def process_invoices():
     auth_client = AuthClient(
             client_id='ABAIju7db2lIL1HqnR0wTRVKrKyrJkS8ZSrLHBnA52RAKvqY07',
             client_secret='2usElguOgftbR3VTkox3RyPAGjPJRbapvREUfmE3',
-            # access_token="",  # If you do not pass this in, the Quickbooks client will call refresh and get a new access token. 
+            access_token="",  # If you do not pass this in, the Quickbooks client will call refresh and get a new access token. 
             environment='production',
             redirect_uri='https://developer.intuit.com/v2/OAuth2Playground/RedirectUrl',
         )
@@ -28,13 +28,13 @@ def process_invoices():
     client = QuickBooks(
             auth_client=auth_client,
             # refresh_token=refresh_token,
-            refresh_token="AB11710166664wCHJSfc8tuATIn6ny6ssdDwUkYGTWx1VmCkeQ",
+            refresh_token="AB11710265193s93KyZf6Q8Dv6vX02L7MYGEVEPgWBoL1B5cJm",
             company_id='9130356041310986',
         )
 
     client = QuickBooks(
         auth_client=auth_client,
-        refresh_token="AB11710166664wCHJSfc8tuATIn6ny6ssdDwUkYGTWx1VmCkeQ",
+        refresh_token="AB11710265193s93KyZf6Q8Dv6vX02L7MYGEVEPgWBoL1B5cJm",
         company_id='9130356041310986',
         minorversion=69
     )
