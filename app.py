@@ -3,6 +3,7 @@ from intuitlib.client import AuthClient
 from intuitlib.enums import Scopes
 from quickbooks.objects.customer import Customer
 from quickbooks.objects.invoice import Invoice
+from requests_oauthlib import OAuth2Session
 import uuid
 import csv
 import mysql.connector
