@@ -14,30 +14,77 @@ import os
 
 def process_invoices():
 
+# Your client ID and client secret obtained from QuickBooks Developer Dashboard
+    client_id = "ABAIju7db2lIL1HqnR0wTRVKrKyrJkS8ZSrLHBnA52RAKvqY07"
+    client_secret = "2usElguOgftbR3VTkox3RyPAGjPJRbapvREUfmE3"
+    redirect_uri = "https://developer.intuit.com/v2/OAuth2Playground/RedirectUrl"
+
+    # The refresh token obtained during the initial OAuth 2.0 authorization
+    refresh_token = "AB11710351767KwdQqbdUrqbBQ14zfD5mDoiJQ9GwlmwPL5wdj"
+
+    # QuickBooks API endpoints
+    # authorization_base_url = "https://appcenter.intuit.com/connect/oauth2"
+    token_url = "https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer"
+
+    # Set up OAuth2 session
+    oauth = OAuth2Session(client_id, redirect_uri=redirect_uri, token={'refresh_token': refresh_token})
+
+    # Refresh the access token using the refresh token
+    token = oauth.refresh_token(token_url, client_id=client_id, client_secret=client_secret)
+
+    # Now you can use the new access token
+    access_token = token['access_token']
+
+    # Example: Print the access token
+    print("Access Token:", access_token)
+
+
+    
     auth_client = AuthClient(
             client_id='ABAIju7db2lIL1HqnR0wTRVKrKyrJkS8ZSrLHBnA52RAKvqY07',
             client_secret='2usElguOgftbR3VTkox3RyPAGjPJRbapvREUfmE3',
-            # access_token="",  # If you do not pass this in, the Quickbooks client will call refresh and get a new access token. 
+            access_token=access_token,  # If you do not pass this in, the Quickbooks client will call refresh and get a new access token. 
             environment='production',
             redirect_uri='https://developer.intuit.com/v2/OAuth2Playground/RedirectUrl',
+
         )
 
 
-# refresh_token = os.environ.get('QUICKBOOKS_REFRESH_TOKEN')
-
+    # # refresh_token = os.environ.get('QUICKBOOKS_REFRESH_TOKEN')
     client = QuickBooks(
             auth_client=auth_client,
             # refresh_token=refresh_token,
-            refresh_token="AB11710265193s93KyZf6Q8Dv6vX02L7MYGEVEPgWBoL1B5cJm",
+            # refresh_token="AB11710351767KwdQqbdUrqbBQ14zfD5mDoiJQ9GwlmwPL5wdj",
             company_id='9130356041310986',
         )
 
-    client = QuickBooks(
-        auth_client=auth_client,
-        refresh_token="AB11710265193s93KyZf6Q8Dv6vX02L7MYGEVEPgWBoL1B5cJm",
-        company_id='9130356041310986',
-        minorversion=69
-    )
+    
+
+    
+#     auth_client = AuthClient(
+#             client_id='ABAIju7db2lIL1HqnR0wTRVKrKyrJkS8ZSrLHBnA52RAKvqY07',
+#             client_secret='2usElguOgftbR3VTkox3RyPAGjPJRbapvREUfmE3',
+#             # access_token="",  # If you do not pass this in, the Quickbooks client will call refresh and get a new access token. 
+#             environment='production',
+#             redirect_uri='https://developer.intuit.com/v2/OAuth2Playground/RedirectUrl',
+#         )
+
+
+# # refresh_token = os.environ.get('QUICKBOOKS_REFRESH_TOKEN')
+
+#     client = QuickBooks(
+#             auth_client=auth_client,
+#             # refresh_token=refresh_token,
+#             refresh_token="AB11710265193s93KyZf6Q8Dv6vX02L7MYGEVEPgWBoL1B5cJm",
+#             company_id='9130356041310986',
+#         )
+
+#     client = QuickBooks(
+#         auth_client=auth_client,
+#         refresh_token="AB11710265193s93KyZf6Q8Dv6vX02L7MYGEVEPgWBoL1B5cJm",
+#         company_id='9130356041310986',
+#         minorversion=69
+#     )
 
 
 
