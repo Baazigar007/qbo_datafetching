@@ -25,7 +25,7 @@ def process_invoices():
     refresh_token = "AB11710351767KwdQqbdUrqbBQ14zfD5mDoiJQ9GwlmwPL5wdj"
 
     # QuickBooks API endpoints
-    # authorization_base_url = "https://appcenter.intuit.com/connect/oauth2"
+    authorization_base_url = "https://appcenter.intuit.com/connect/oauth2"
     token_url = "https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer"
 
     # Set up OAuth2 session
