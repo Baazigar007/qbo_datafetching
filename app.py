@@ -15,33 +15,118 @@ import requests
 import os
 import json
 
+TOKENS_PATH = os.environ.get('QUICKBOOKS_REFRESH_TOKEN')  # Replace with your actual tokens path in Firestore
+#
+# TOKENS_PATH = 'tokens/qb-tokens'  # Replace with your actual tokens path in Firestore
+
+# Global variable to store tokens during runtime
+tokens_data = None
+
+def load_tokens():
+    global tokens_data
+    return tokens_data
+
+def save_tokens(tokens):
+    global tokens_data
+    tokens_data = tokens
+
+async def refresh_tokens(refresh_token, authorization_basic):
+    headers = {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': f'Basic {authorization_basic}',
+        'accept': 'application/json',
+    }
+
+    data = {
+        'grant_type': 'refresh_token',
+        'refresh_token': refresh_token,
+    }
+
+    response = requests.post('https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer', headers=headers, data=data)
+
+    try:
+        response.raise_for_status()
+        json_data = response.json()
+        refresh_token = json_data.get('refresh_token', '')
+        access_token = json_data.get('access_token', '')
+        return {'refreshToken': refresh_token, 'accessToken': access_token}
+
+    except requests.exceptions.HTTPError as errh:
+        print(f"HTTP Error: {errh}")
+    except requests.exceptions.ConnectionError as errc:
+        print(f"Error Connecting: {errc}")
+    except requests.exceptions.Timeout as errt:
+        print(f"Timeout Error: {errt}")
+    except requests.exceptions.RequestException as err:
+        print(f"Something went wrong: {err}")
+
+    return {'refreshToken': '', 'accessToken': ''}
+
+def refresh_token():
+    # Get Existing Tokens
+    tokens = load_tokens()
+    print('Refreshing Token')
+
+    if not tokens:
+        # No tokens found
+        # Save an error message in the log or handle accordingly
+        print('No Tokens Found')
+    else:
+        data = tokens
+        if not data.get('accessToken') or not data.get('refreshToken') or not data.get('authorizationBasic'):
+            # Insufficient data in tokens
+            # Save an error message in the log or handle accordingly
+            print('Insufficient Data in Tokens')
+            return
+
+        new_tokens = refresh_tokens(data['refreshToken'], data['authorizationBasic'])
+
+        if not new_tokens['accessToken'] or not new_tokens['refreshToken']:
+            # Unable to fetch access token from QuickBooks
+            # Save an error message in the log or handle accordingly
+            print('Unable to Fetch Access Token from QB')
+        else:
+            # Successfully refreshed token
+            # Update tokens or handle accordingly
+            data['accessToken'] = new_tokens['accessToken']
+            data['refreshToken'] = new_tokens['refreshToken']
+            data['error'] = False
+            data['message'] = f"Successfully Fetched Access Token from QB @ {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+            data['lastRun'] = int(datetime.now().timestamp())
+
+            save_tokens(data)
+            print('Refreshed Token Successfully')
+
+if __name__ == "__main__":
+    refresh_token()
+
 
 
 def process_invoices():
 
-# Your client ID and client secret obtained from QuickBooks Developer Dashboard
-    client_id = "ABAIju7db2lIL1HqnR0wTRVKrKyrJkS8ZSrLHBnA52RAKvqY07"
-    client_secret = "2usElguOgftbR3VTkox3RyPAGjPJRbapvREUfmE3"
-    redirect_uri = "https://developer.intuit.com/v2/OAuth2Playground/RedirectUrl"
+# # Your client ID and client secret obtained from QuickBooks Developer Dashboard
+#     client_id = "ABAIju7db2lIL1HqnR0wTRVKrKyrJkS8ZSrLHBnA52RAKvqY07"
+#     client_secret = "2usElguOgftbR3VTkox3RyPAGjPJRbapvREUfmE3"
+#     redirect_uri = "https://developer.intuit.com/v2/OAuth2Playground/RedirectUrl"
 
-    # The refresh token obtained during the initial OAuth 2.0 authorization
-    refresh_token = "AB11710351767KwdQqbdUrqbBQ14zfD5mDoiJQ9GwlmwPL5wdj"
+#     # The refresh token obtained during the initial OAuth 2.0 authorization
+#     refresh_token = "AB11710351767KwdQqbdUrqbBQ14zfD5mDoiJQ9GwlmwPL5wdj"
 
-    # QuickBooks API endpoints
-    authorization_base_url = "https://appcenter.intuit.com/connect/oauth2"
-    token_url = "https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer"
+#     # QuickBooks API endpoints
+#     authorization_base_url = "https://appcenter.intuit.com/connect/oauth2"
+#     token_url = "https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer"
 
-    # Set up OAuth2 session
-    oauth = OAuth2Session(client_id, redirect_uri=redirect_uri, token={'refresh_token': refresh_token})
+#     # Set up OAuth2 session
+#     oauth = OAuth2Session(client_id, redirect_uri=redirect_uri, token={'refresh_token': refresh_token})
 
-    # Refresh the access token using the refresh token
-    token = oauth.refresh_token(token_url, client_id=client_id, client_secret=client_secret)
+#     # Refresh the access token using the refresh token
+#     token = oauth.refresh_token(token_url, client_id=client_id, client_secret=client_secret)
 
-    # Now you can use the new access token
-    access_token = token['access_token']
+#     # Now you can use the new access token
+#     access_token = token['access_token']
 
-    # Example: Print the access token
-    print("Access Token:", access_token)
+#     # Example: Print the access token
+#     print("Access Token:", access_token)
 
 
     
