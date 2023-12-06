@@ -24,7 +24,7 @@ def process_invoices():
     redirect_uri = "https://developer.intuit.com/v2/OAuth2Playground/RedirectUrl"
 
     # The refresh token obtained during the initial OAuth 2.0 authorization
-    refresh_token = "AB11710351767KwdQqbdUrqbBQ14zfD5mDoiJQ9GwlmwPL5wdj"
+    refresh_token = "AB11710582767VCA74F5oxQXxkWkxl3KA3Xm5J2a8lJKqYdDpK"
 
     # QuickBooks API endpoints
     authorization_base_url = "https://appcenter.intuit.com/connect/oauth2"
