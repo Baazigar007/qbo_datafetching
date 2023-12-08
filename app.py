@@ -16,6 +16,97 @@ import os
 import json
 
 
+
+TOKENS_PATH = '/tmp/data.txt'  # Replace with your actual tokens path in Firestore
+
+def load_tokens():
+    try:
+        with open(TOKENS_PATH + '.txt', 'r') as file:
+            data = file.read().splitlines()
+            return {
+                'accessToken': data[0],
+                'refreshToken': data[1],
+                'authorizationBasic': data[2],
+            }
+    except FileNotFoundError:
+        return None
+
+def save_tokens(tokens):
+    with open(TOKENS_PATH + '.txt', 'w') as file:
+        file.write(f"{tokens['accessToken']}\n")
+        file.write(f"{tokens['refreshToken']}\n")
+        file.write(f"{tokens['authorizationBasic']}\n")
+async def refresh_tokens(refresh_token, authorization_basic):
+    headers = {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': f'Basic {authorization_basic}',
+        'accept': 'application/json',
+    }
+
+    data = {
+        'grant_type': 'refresh_token',
+        'refresh_token': refresh_token,
+    }
+
+    response = requests.post('https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer', headers=headers, data=data)
+
+    try:
+        response.raise_for_status()
+        json_data = response.json()
+        refresh_token = json_data.get('refresh_token', '')
+        access_token = json_data.get('access_token', '')
+        return {'refreshToken': refresh_token, 'accessToken': access_token}
+
+    except requests.exceptions.HTTPError as errh:
+        print(f"HTTP Error: {errh}")
+    except requests.exceptions.ConnectionError as errc:
+        print(f"Error Connecting: {errc}")
+    except requests.exceptions.Timeout as errt:
+        print(f"Timeout Error: {errt}")
+    except requests.exceptions.RequestException as err:
+        print(f"Something went wrong: {err}")
+
+    return {'refreshToken': '', 'accessToken': ''}
+
+def refresh_token():
+    # Get Existing Tokens
+    tokens = load_tokens()
+    print('Refreshing Token')
+
+    if not tokens:
+        # No tokens found
+        # Save an error message in the log or handle accordingly
+        print('No Tokens Found')
+    else:
+        data = tokens
+        if not data.get('accessToken') or not data.get('refreshToken') or not data.get('authorizationBasic'):
+            # Insufficient data in tokens
+            # Save an error message in the log or handle accordingly
+            print('Insufficient Data in Tokens')
+            return
+
+        new_tokens = refresh_tokens(data['refreshToken'], data['authorizationBasic'])
+
+        if not new_tokens['accessToken'] or not new_tokens['refreshToken']:
+            # Unable to fetch access token from QuickBooks
+            # Save an error message in the log or handle accordingly
+            print('Unable to Fetch Access Token from QB')
+        else:
+            # Successfully refreshed token
+            # Update tokens or handle accordingly
+            data['accessToken'] = new_tokens['accessToken']
+            data['refreshToken'] = new_tokens['refreshToken']
+            data['error'] = False
+            data['message'] = f"Successfully Fetched Access Token from QB @ {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+            data['lastRun'] = int(datetime.now().timestamp())
+
+            save_tokens(data)
+            print('Refreshed Token Successfully')
+
+if __name__ == "__main__":
+    refresh_token()
+
+
 def process_invoices():
 
 # Your client ID and client secret obtained from QuickBooks Developer Dashboard
@@ -325,8 +416,8 @@ def update_database_periodically():
     connection.close()
 
 # Schedule the update function to run every day at 12 am 
-schedule.every().day.at("17:00:00").do(update_database_periodically)
-# schedule.every(5).minutes.do(update_database_periodically)
+# schedule.every().day.at("17:00:00").do(update_database_periodically)
+schedule.every(5).minutes.do(update_database_periodically)
 print("Done updating")
 
 while True:
