@@ -14,29 +14,38 @@ import pandas as pd
 import requests
 import os
 import json
+import base64
 
 
-
+client_id = "ABAIju7db2lIL1HqnR0wTRVKrKyrJkS8ZSrLHBnA52RAKvqY07"
+client_secret = "2usElguOgftbR3VTkox3RyPAGjPJRbapvREUfmE3"
 TOKENS_PATH = '/tmp/data.txt'  # Replace with your actual tokens path in Firestore
+# TOKENS_PATH = 'data.txt'  # Adjust the path as needed
+combined_string = f"{client_id}:{client_secret}"
+
+# Base64 encode the combined string
+authorization_basic = base64.b64encode(combined_string.encode()).decode()
+
 
 def load_tokens():
     try:
-        with open(TOKENS_PATH + '.txt', 'r') as file:
+        with open(TOKENS_PATH, 'r') as file:
             data = file.read().splitlines()
             return {
                 'accessToken': data[0],
                 'refreshToken': data[1],
-                'authorizationBasic': data[2],
+                'authorizationBasic': {authorization_basic},
             }
     except FileNotFoundError:
         return None
 
 def save_tokens(tokens):
-    with open(TOKENS_PATH + '.txt', 'w') as file:
+    with open(TOKENS_PATH, 'w') as file:
         file.write(f"{tokens['accessToken']}\n")
         file.write(f"{tokens['refreshToken']}\n")
         file.write(f"{tokens['authorizationBasic']}\n")
-async def refresh_tokens(refresh_token, authorization_basic):
+
+def refresh_tokens(refresh_token, authorization_basic):
     headers = {
         'Content-Type': 'application/x-www-form-urlencoded',
         'Authorization': f'Basic {authorization_basic}',
@@ -56,17 +65,10 @@ async def refresh_tokens(refresh_token, authorization_basic):
         refresh_token = json_data.get('refresh_token', '')
         access_token = json_data.get('access_token', '')
         return {'refreshToken': refresh_token, 'accessToken': access_token}
-
-    except requests.exceptions.HTTPError as errh:
-        print(f"HTTP Error: {errh}")
-    except requests.exceptions.ConnectionError as errc:
-        print(f"Error Connecting: {errc}")
-    except requests.exceptions.Timeout as errt:
-        print(f"Timeout Error: {errt}")
     except requests.exceptions.RequestException as err:
         print(f"Something went wrong: {err}")
-
-    return {'refreshToken': '', 'accessToken': ''}
+        return {'refreshToken': '', 'accessToken': ''}
+    
 
 def refresh_token():
     # Get Existing Tokens
@@ -107,7 +109,7 @@ if __name__ == "__main__":
     refresh_token()
 
 
-def process_invoices():
+def process_invoices(access_token):
 
 # Your client ID and client secret obtained from QuickBooks Developer Dashboard
     client_id = "ABAIju7db2lIL1HqnR0wTRVKrKyrJkS8ZSrLHBnA52RAKvqY07"
@@ -368,7 +370,50 @@ def process_invoices():
     write_data_to_csv(existing_data, "outputdataNEW.csv", csv_columns)
     print("CSV file has been updated.")
 # Call the function to process the invoices
-process_invoices()
+# process_invoices()
+
+
+def refresh_token():
+    # Get Existing Tokens
+    tokens = load_tokens()
+    print('Refreshing Token')
+
+    if not tokens:
+        # No tokens found
+        # Save an error message in the log or handle accordingly
+        print('No Tokens Found')
+    else:
+        data = tokens
+        if not data.get('accessToken') or not data.get('refreshToken') or not data.get('authorizationBasic'):
+            # Insufficient data in tokens
+            # Save an error message in the log or handle accordingly
+            print('Insufficient Data in Tokens')
+            return
+
+        new_tokens = refresh_tokens(data['refreshToken'], data['authorizationBasic'])
+
+        if not new_tokens['accessToken'] or not new_tokens['refreshToken']:
+            # Unable to fetch access token from QuickBooks
+            # Save an error message in the log or handle accordingly
+            print('Unable to Fetch Access Token from QB')
+        else:
+            # Successfully refreshed token
+            # Update tokens or handle accordingly
+            data['accessToken'] = new_tokens['accessToken']
+            data['refreshToken'] = new_tokens['refreshToken']
+            data['error'] = False
+            data['message'] = f"Successfully Fetched Access Token from QB @ {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+            data['lastRun'] = int(datetime.now().timestamp())
+
+            save_tokens(data)
+            print('Refreshed Token Successfully')
+
+            process_invoices(data['accessToken'])
+
+
+if __name__ == "__main__":
+    refresh_token()
+
 
 
 def import_csv_to_dbeaver_database_using_mysql(csv_file_path, database_connection):
