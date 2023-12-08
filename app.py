@@ -19,7 +19,7 @@ import base64
 
 client_id = "ABAIju7db2lIL1HqnR0wTRVKrKyrJkS8ZSrLHBnA52RAKvqY07"
 client_secret = "2usElguOgftbR3VTkox3RyPAGjPJRbapvREUfmE3"
-TOKENS_PATH = '/tmp/data.txt'  # Replace with your actual tokens path in Firestore
+TOKENS_PATH = '/data.txt'  # Replace with your actual tokens path in Firestore
 # TOKENS_PATH = 'data.txt'  # Adjust the path as needed
 combined_string = f"{client_id}:{client_secret}"
 
