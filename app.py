@@ -111,29 +111,29 @@ if __name__ == "__main__":
 
 def process_invoices(access_token):
 
-# Your client ID and client secret obtained from QuickBooks Developer Dashboard
-    client_id = "ABAIju7db2lIL1HqnR0wTRVKrKyrJkS8ZSrLHBnA52RAKvqY07"
-    client_secret = "2usElguOgftbR3VTkox3RyPAGjPJRbapvREUfmE3"
-    redirect_uri = "https://developer.intuit.com/v2/OAuth2Playground/RedirectUrl"
+# # Your client ID and client secret obtained from QuickBooks Developer Dashboard
+#     client_id = "ABAIju7db2lIL1HqnR0wTRVKrKyrJkS8ZSrLHBnA52RAKvqY07"
+#     client_secret = "2usElguOgftbR3VTkox3RyPAGjPJRbapvREUfmE3"
+#     redirect_uri = "https://developer.intuit.com/v2/OAuth2Playground/RedirectUrl"
 
-    # The refresh token obtained during the initial OAuth 2.0 authorization
-    refresh_token = "AB11710582767VCA74F5oxQXxkWkxl3KA3Xm5J2a8lJKqYdDpK"
+#     # The refresh token obtained during the initial OAuth 2.0 authorization
+#     refresh_token = "AB11710582767VCA74F5oxQXxkWkxl3KA3Xm5J2a8lJKqYdDpK"
 
-    # QuickBooks API endpoints
-    authorization_base_url = "https://appcenter.intuit.com/connect/oauth2"
-    token_url = "https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer"
+#     # QuickBooks API endpoints
+#     authorization_base_url = "https://appcenter.intuit.com/connect/oauth2"
+#     token_url = "https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer"
 
-    # Set up OAuth2 session
-    oauth = OAuth2Session(client_id, redirect_uri=redirect_uri, token={'refresh_token': refresh_token})
+#     # Set up OAuth2 session
+#     oauth = OAuth2Session(client_id, redirect_uri=redirect_uri, token={'refresh_token': refresh_token})
 
-    # Refresh the access token using the refresh token
-    token = oauth.refresh_token(token_url, client_id=client_id, client_secret=client_secret)
+#     # Refresh the access token using the refresh token
+#     token = oauth.refresh_token(token_url, client_id=client_id, client_secret=client_secret)
 
-    # Now you can use the new access token
-    access_token = token['access_token']
+#     # Now you can use the new access token
+#     access_token = token['access_token']
 
-    # Example: Print the access token
-    print("Access Token:", access_token)
+#     # Example: Print the access token
+#     print("Access Token:", access_token)
 
 
     
