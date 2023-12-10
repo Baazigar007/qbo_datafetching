@@ -461,7 +461,7 @@ def update_database_periodically():
 
 # Schedule the update function to run every day at 12 am 
 # schedule.every().day.at("17:00:00").do(update_database_periodically)
-schedule.every(5).minutes.do(update_database_periodically)
+# schedule.every(5).minutes.do(update_database_periodically)
 print("Done updating")
 
 while True:
