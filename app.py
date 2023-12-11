@@ -202,7 +202,6 @@ def export_data_from_csv_to_database(invoices, database_connection):
     print("Data imported into the database")
 
 def update_database_periodically():
-    load_tokens_from_heroku()
     refresh_token()
     connection = mysql.connector.connect(
         host=SECRET_DICT["mysql_host"],
@@ -223,6 +222,7 @@ def update_database_periodically():
     connection.close()
 
 if __name__ == "__main__":
+    load_tokens_from_heroku()
     while True:
         update_database_periodically()
         time.sleep(60*60*30) # waiting for 30 mins
