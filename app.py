@@ -186,7 +186,7 @@ def process_invoices(connection: mysql.connector.connect):
 
     return dataset
 
-def export_data_from_csv_to_database(invoices, database_connection):
+def export_data_to_mysql_database(invoices, database_connection):
     insert_query = "INSERT INTO qbo_data (uuid, invoiceId, date, school, sorority, product, amount, productQty, unitPrice, descriptions) VALUES "
     cursor = database_connection.cursor()
     values = []
@@ -215,7 +215,7 @@ def update_database_periodically():
     print("Starting database update...")
     if invoices:
         print(f'Dumping {len(invoices)} records...')
-        export_data_from_csv_to_database(invoices, connection)
+        export_data_to_mysql_database(invoices, connection)
         print("Data uploaded successfully!")
     else:
         print('No new data to upload!')
