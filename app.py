@@ -225,4 +225,4 @@ if __name__ == "__main__":
     load_tokens_from_heroku()
     while True:
         update_database_periodically()
-        time.sleep(60*60*30) # waiting for 30 mins
+        time.sleep(60*30) # waiting for 30 mins
