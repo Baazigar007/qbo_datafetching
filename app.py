@@ -42,20 +42,15 @@ def refresh_tokens(refresh_token, authorization_basic):
     }
 
     response = requests.post('https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer', headers=headers, data=data)
-
-    try:
-        response.raise_for_status()
-        json_data = response.json()
-        refresh_token = json_data.get('refresh_token', '')
-        access_token = json_data.get('access_token', '')
-        if refresh_token and access_token:
-            if refresh_token != SECRET_DICT['refresh_token']:
-                print('!!!REFRESH TOKEN GOT CHANGED!!!')
-            SECRET_DICT['refresh_token'] = refresh_token
-            SECRET_DICT['access_token'] = access_token
-    except requests.exceptions.RequestException as err:
-        print(f"Something went wrong during token refresh: {err}")
-        raise TokenRefreshError("Token refresh failed")
+    response.raise_for_status()
+    json_data = response.json()
+    refresh_token = json_data.get('refresh_token', '')
+    access_token = json_data.get('access_token', '')
+    if refresh_token and access_token:
+        if refresh_token != SECRET_DICT['refresh_token']:
+            print('!!!REFRESH TOKEN GOT CHANGED!!!')
+        SECRET_DICT['refresh_token'] = refresh_token
+        SECRET_DICT['access_token'] = access_token
 
 def refresh_token():
     try:
