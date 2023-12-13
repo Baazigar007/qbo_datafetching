@@ -49,6 +49,8 @@ def refresh_tokens(refresh_token, authorization_basic):
         refresh_token = json_data.get('refresh_token', '')
         access_token = json_data.get('access_token', '')
         if refresh_token and access_token:
+            if refresh_token != SECRET_DICT['refresh_token']:
+                print('!!!REFRESH TOKEN GOT CHANGED!!!)
             SECRET_DICT['refresh_token'] = refresh_token
             SECRET_DICT['access_token'] = access_token
     except requests.exceptions.RequestException as err:
