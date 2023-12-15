@@ -195,7 +195,6 @@ def process_invoices(connection: mysql.connector.connect):
 
 def export_data_to_mysql_database(invoices, database_connection):
     insert_query = "INSERT INTO qbo_data (uuid, invoiceId, date, school, sorority, product, amount, productQty, unitPrice, descriptions) VALUES "
-    cursor = database_connection.cursor()
     values = []
     for invoice in invoices:
         value_str = f"""('{invoice['uuid']}', '{invoice['invoiceId']}', '{invoice['date']}', 
@@ -204,8 +203,9 @@ def export_data_to_mysql_database(invoices, database_connection):
         values.append(value_str)
 
     insert_query += ', '.join(values)
-    cursor.execute(insert_query)
     print(insert_query)
+    cursor = database_connection.cursor()
+    cursor.execute(insert_query)
     database_connection.commit()
     print("Data imported into the database")
 
