@@ -193,21 +193,29 @@ def process_invoices(connection: mysql.connector.connect):
 
     return dataset
 
-def export_data_to_mysql_database(invoices, database_connection):
-    insert_query = "INSERT INTO qbo_data (uuid, invoiceId, date, school, sorority, product, amount, productQty, unitPrice, descriptions) VALUES "
+def export_data_from_csv_to_database(invoices, database_connection):
+    query_template = "INSERT INTO qbo_data (uuid, invoiceId, date, school, sorority, product, amount, productQty, unitPrice, descriptions) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+    cursor = database_connection.cursor()
+
     values = []
     for invoice in invoices:
-        value_str = f"""('{invoice['uuid']}', '{invoice['invoiceId']}', '{invoice['date']}', 
-                        '{invoice['school']}', '{invoice['sorority']}', '{invoice['product']}', 
-                        {invoice['amount']}, {invoice['productQty']}, {invoice['unitPrice']}, '{invoice['descriptions']}')"""
-        values.append(value_str)
+        values.append((
+            invoice['uuid'], invoice['invoiceId'], invoice['date'], 
+            invoice['school'], invoice['sorority'], invoice['product'], 
+            invoice['amount'], invoice['productQty'], invoice['unitPrice'], 
+            invoice['descriptions']
+        ))
 
-    insert_query += ', '.join(values)
-    print(insert_query)
-    cursor = database_connection.cursor()
-    cursor.execute(insert_query)
-    database_connection.commit()
-    print("Data imported into the database")
+    try:
+        cursor.executemany(query_template, values)
+        
+        database_connection.commit()
+
+        print("Data imported into the database")
+    except mysql.connector.Error as err:
+        print(f"Error executing SQL query: {err}")
+    finally:
+        cursor.close()
 
 def update_database_periodically():
     refresh_token()
