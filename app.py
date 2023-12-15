@@ -205,6 +205,7 @@ def export_data_to_mysql_database(invoices, database_connection):
 
     insert_query += ', '.join(values)
     cursor.execute(insert_query)
+    print(insert_query)
     database_connection.commit()
     print("Data imported into the database")
 
