@@ -41,16 +41,26 @@ def refresh_tokens(refresh_token, authorization_basic):
         'refresh_token': refresh_token,
     }
 
-    response = requests.post('https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer', headers=headers, data=data)
-    response.raise_for_status()
-    json_data = response.json()
-    refresh_token = json_data.get('refresh_token', '')
-    access_token = json_data.get('access_token', '')
-    if refresh_token and access_token:
-        if refresh_token != SECRET_DICT['refresh_token']:
-            print('!!!REFRESH TOKEN GOT CHANGED!!!')
-        SECRET_DICT['refresh_token'] = refresh_token
-        SECRET_DICT['access_token'] = access_token
+    try:
+        response = requests.post('https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer', headers=headers, data=data)
+        response.raise_for_status()  # Check for HTTP errors
+
+        json_data = response.json()
+        refresh_token = json_data.get('refresh_token', '')
+        access_token = json_data.get('access_token', '')
+
+        if refresh_token and access_token:
+            if refresh_token != SECRET_DICT.get('refresh_token', ''):
+                print('!!!REFRESH TOKEN GOT CHANGED!!!')
+            SECRET_DICT['refresh_token'] = refresh_token
+            SECRET_DICT['access_token'] = access_token
+    except requests.exceptions.HTTPError as err:
+        if err.response.status_code == 400:
+            # Log the error and response content for debugging
+            print(f"HTTP 400 Bad Request. Response content: {err.response.text}")
+        else:
+            # Handle other HTTP errors here
+            print(f"HTTP Error: {err}")
 
 def refresh_token():
     try:
