@@ -193,7 +193,7 @@ def process_invoices(connection: mysql.connector.connect):
 
     return dataset
 
-def export_data_from_csv_to_database(invoices, database_connection):
+def export_data_to_mysql_database(invoices, database_connection):
     query_template = "INSERT INTO qbo_data (uuid, invoiceId, date, school, sorority, product, amount, productQty, unitPrice, descriptions) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
     cursor = database_connection.cursor()
 
